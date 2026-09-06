@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Личный учёт 2026</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#EDEEEA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C2321" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Учёт">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+</head>
+<body>
+<style>
+  :root{
+    --ground:#EDEEEA; --card:#FAFAF8; --ink:#1C2321; --muted:#6E7873;
+    --line:#D3D6CF; --mal:#176B54; --cop:#B25B2A; --blue:#4A6FA5; --kat:#93AECC; --gold:#8A7A2E;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;padding:14px 12px 48px}
+  .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .card{background:#fff;border:none;border-radius:7px;padding:15px 14px;margin-bottom:11px;
+    box-shadow:0 1px 2px rgba(28,35,33,.07),0 2px 10px rgba(28,35,33,.045)}
+  input{font-family:ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:15px;
+    color:var(--ink);text-align:right;padding:9px 10px;border:1px solid var(--line);border-radius:3px;
+    background:#fff;width:126px}
+  input:focus{outline:2px solid var(--mal);outline-offset:1px}
+  button{font-family:inherit;cursor:pointer}
+  table{width:100%;border-collapse:collapse}
+  .hd{display:flex;justify-content:space-between;align-items:baseline}
+  .row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .kpi{background:#fff;border:none;border-radius:7px;padding:13px 12px;
+    box-shadow:0 1px 2px rgba(28,35,33,.07),0 2px 10px rgba(28,35,33,.045)}
+  .chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:10px}
+  .chip{flex:0 0 auto;padding:6px 11px;font-size:12px;border-radius:3px;border:1px solid var(--line);
+    background:transparent;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .chip.has{background:#fff;color:var(--ink)}
+  .chip.on{background:var(--ink);color:var(--ground);border-color:var(--ink);font-weight:600}
+  .tab{flex:0 0 auto;padding:9px 11px;background:none;border:none;border-bottom:2px solid transparent;
+    color:var(--muted);font-size:11px;letter-spacing:-.02em;white-space:nowrap}
+  .tab.on{border-bottom-color:var(--mal);color:var(--ink);font-weight:600}
+  .lg{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:10px;color:var(--muted)}
+  .lg span{display:flex;align-items:center;gap:5px}
+  .sw{width:8px;height:8px;border-radius:1px;display:inline-block}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media print{
+    body{background:#fff;padding:0;font-size:11px}
+    nav,button,input{display:none!important}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid;margin-bottom:8px}
+    .chips{display:none}
+  }
+
+  /* --- айфон --- */
+  @media (pointer:coarse){
+    input,select,textarea{font-size:16px!important}
+  }
+  body{padding:calc(14px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
+       calc(48px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+       -webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+  @media (display-mode:standalone){
+    body{padding-top:calc(6px + env(safe-area-inset-top))}
+  }
+</style>
+<div id="app">Загружаю…</div>
+<script>
+const YEARS_SEED={
+  "2022":{inc:463116,tax:59685},
+  "2023":{inc:97612,tax:4253},
+  "2024":{inc:3444421,tax:246431},
+  "2025":{inc:5278840,tax:375569,cap:19989000}
+};
+const BROKER={
+  src:"15 счетов · Т-Банк, Альфа, Сбер, Freedom · 6 143 операции и сделки",
+  y:{
+   "2024":{inc:318570,cou:88878,div:229691,fnd:0,tax:51942,fee:23605,pay:235,net:3274996,turn:7477673},
+   "2025":{inc:987227,cou:527125,div:427627,fnd:32475,tax:112745,fee:33983,pay:1367,net:6577540+850065,turn:14745675}},
+  y26:1649482,
+  top25:[["a2","Пенсия 2035",210363],["a6","Ипотека 1.6",170702],["a3","ИИС",141277],
+         ["a1","Ипотека 2.8",117990],["a19","Степан",116194],["a8","ФНБ",61690],
+         ["a7","Рантье",36615],["a4","Мой Пассив",26210],["a10","Freedom",21365],["a9","Китай",21084]]
+};
+const MONTHS=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const SHORT=["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
+const FIELDS=[["bank","Банк %"],["div","Дивиденды с БР"],["salary","Зарплата"],["katya","Катя ПИ"],["pi","ПИ"],["other","Иное"]];
+const CURRENCY={a10:"USD / AED / EUR",a11:"USD",a9:"HKD",a16:"USD (BTC/ETH)",a12:"USD (BTC/ETH)",a13:"USD (BTC/ETH)",a14:"USD (BTC/ETH)",a15:"USD (BTC/ETH)",a21:"USD (BTC/ETH)"};
+const CUR_COLOR={"RUB":"#176B54","USD / AED / EUR":"#4A6FA5","USD":"#93AECC","HKD":"#B25B2A","USD (BTC/ETH)":"#8A7A2E"};
+const DEBTS=[["d1","Ипотека ВТБ V634/2007-0001239"],["d2","Прочие кредиты"],["d3","Прочие обязательства"]];
+const INFO_DEBTS=[["i1","Ипотека ВТБ V634/3807-0000940","обслуживают родители",4747769]];
+const DATES=["31.12.2025","01.02.2026","01.03.2026","01.04.2026","01.05.2026","01.06.2026","01.07.2026","01.08.2026","01.09.2026","01.10.2026","01.11.2026","01.12.2026","31.12.2026"];
+const ACCOUNTS=[
+ ["a1","Альфа-Банк · 3737261","БР (Ипотека 2.8)","Брокерские",[3150,3239,3317,3351,3302,null,3145,3081]],
+ ["a2","Сбер · 404PJGR","БР (Пенсия 2035)","Брокерские",[2940,2956,2999,2943,2846,null,2649,2678]],
+ ["a3","Сбер · S207VB1","БР (ИИС)","Брокерские",[1614,1664,1707,1709,1689,null,1641,1612]],
+ ["a4","Т-Банк · 2221205099","БР (Мой Пассив)","Брокерские",[1213,1320,1047,1056,1355,null,1597,1676]],
+ ["a23","Т-Банк · 2000093965","ИИС (лестница ОФЗ)","Брокерские",[0,0,199,254,258,null,316,316]],
+ ["a6","Т-Банк · 2243232683","БР (Ипотека 1.6)","Брокерские",[1776,1800,1822,1831,1831,null,1822,1877]],
+ ["a7","Т-Банк · 2097789750","БР (Рантье)","Брокерские",[532,552,518,520,522,null,487,475]],
+ ["a8","Т-Банк · 2183313915","БР (ФНБ)","Брокерские",[863,880,895,895,893,null,885,902]],
+ ["a9","Т-Банк · 2196567693","БР (Китай)","Брокерские",[350,374,360,383,388,null,337,366]],
+ ["a10","Freedom · брокерский","Акции США и ОАЭ","Брокерские",[1007,992,966,976,1035,null,1110,1276]],
+ ["a11","Freedom Finance","Вклад · D7T5790","Вклады",[508,493,500,508,487,null,467,413]],
+ ["a17","Альфа-Банк","Вклад (Ремонт)","Вклады",[2000,1650,880,125,693,null,300,0]],
+ ["a18","Альфа-Банк","Вклад","Вклады",[1000,1000,1000,1000,0,null,0,0]],
+ ["a12","CRYPTO · Ledger","BTC 0,0599 · USDT 808 · GRAM 86","Крипта",[448,405,338,333,428,null,332,491]],
+ ["a13","CRYPTO · 0x5592…80b4","Кошелёк (USDC, WBTC, ETH, PAXG)","Крипта",[177,165,150,155,160,null,120,184]],
+ ["a14","CRYPTO · Metis21","Metamask (USDT, ETH)","Крипта",[105,100,103,104,100,null,102,124]],
+ ["a16","CRYPTO · Tradernet","Цифра (BTC/ETH)","Крипта",[300,283,310,390,440,null,371,446]],
+ ["a19","Т-Банк · 2098346709","Счёт Степана","Степан",[1986,2032,2051,2028,1989,null,1845,1937]],
+ ["a22","—","Иное","Прочее",[20,null,null,null,400,null,270,150]]];
+const RENO_ACC=["a17","a18"];
+const VERIFIED={
+ a6:{n:"Ипотека 1.6",v0:1776000,v1:1877000,dep:12354,inc:284567,r:5.0},
+ a8:{n:"ФНБ",v0:863000,v1:902000,dep:0,inc:87416,r:4.5},
+ a9:{n:"Китай",v0:350000,v1:388000,dep:24700,inc:1232,r:3.6},
+ a19:{n:"Степан 2036",v0:1986000,v1:1937000,dep:0,inc:215603,r:-2.5},
+ a1:{n:"Ипотека 2.8",v0:3150394,v1:3080893,dep:348,inc:235251,r:-2.2},
+ a7:{n:"Рантье",v0:532000,v1:475000,dep:0,inc:118167,r:-10.7},
+ a16:{n:"Крипта (Цифра)",v0:300000,v1:446000,dep:190685,inc:0,r:-10.8},
+ a10:{n:"Freedom (брокерский + вклад)",v0:1515000,v1:1689000,dep:0,inc:0,r:11.5,ids:["a10","a11"]},
+ a3:{n:"Сбер ИИС",v0:1614136,v1:1611675,dep:0,inc:187987,r:-0.2},
+ a2:{n:"Сбер Пенсия 2035",v0:2939995,v1:2677928,dep:0,inc:273573,r:-8.9}};
+const UNVERIFIED={a4:"начальная сумма расходится с потоками",a23:"оценка по вложениям, нет рыночной цены"};
+const GROUPS=["Брокерские","Вклады","Крипта","Степан","Прочее"];
+const GC={"Брокерские":"#176B54","Вклады":"#8A7A2E","Крипта":"#B25B2A","Степан":"#4A6FA5","Прочее":"#6E7873"};
+const LEVELS=[["КОМФОРТ",250000],["КОМФОРТ +",350000],["БИЗНЕС",500000],["БИЗНЕС +",700000],["LUXURY",1000000]];
+const SEED_INCOME={
+ "Январь":{bank:35108,div:197731,salary:162000,katya:20000,pi:50000,other:45000,wd:0},
+ "Февраль":{bank:12098,div:131973,salary:168000,katya:20000,pi:90000,other:0,wd:0},
+ "Март":{bank:14722,div:163817,salary:130000,katya:20000,pi:120000,other:50000,wd:0},
+ "Апрель":{bank:13663,div:250870,salary:82200,katya:20000,pi:20000,other:0,wd:24829},
+ "Май":{bank:7697,div:170361,salary:79000,katya:20000,pi:800000,other:0,wd:13207},
+ "Июнь":{bank:5596,div:291579,salary:113500,katya:20000,pi:0,other:0,wd:13799},
+ "Июль":{bank:5516,div:216977,salary:76700,katya:20000,pi:0,other:0,wd:29437},
+ "Август":{bank:5165,div:226174,salary:62000,katya:20000,wd:28179}};
+
+const fmt=n=>(n||n===0)?Math.round(n).toLocaleString("ru-RU"):"—";
+const num=s=>{const v=parseInt(String(s).replace(/[^\d]/g,""),10);return isNaN(v)?0:v};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let S={income:JSON.parse(JSON.stringify(SEED_INCOME)),capital:{}};
+DATES.forEach(d=>S.capital[d]={});
+ACCOUNTS.forEach(a=>a[4].forEach((v,i)=>{if(v!==null)S.capital[DATES[i]][a[0]]=v*1000}));
+S.goal=250000;
+S.debts={"01.08.2026":{d1:4765914}};
+S.goals={a1:2800000,a6:1600000}; S.iis={dep:300000}; S.ops=[]; S.years=JSON.parse(JSON.stringify(YEARS_SEED));
+let V={tab:"obzor",month:"Август",date:"01.08.2026"};
+
+const PATCH_V=10;
+const PATCH={
+  capital:{"31.12.2025":{a1:3150000,a12:448000,a19:1986000,a2:2940000,a23:0,a3:1614000,a4:1213000},"01.02.2026":{a1:3239000,a12:405000,a19:2032000,a2:2956000,a23:0,a3:1664000,a4:1320000},"01.03.2026":{a1:3317000,a12:338000,a19:2051000,a2:2999000,a23:199000,a3:1707000,a4:1047000},"01.04.2026":{a1:3351000,a12:333000,a19:2028000,a2:2943000,a23:254000,a3:1709000,a4:1056000},"01.05.2026":{a1:3302000,a12:428000,a19:1989000,a2:2846000,a23:258000,a3:1689000,a4:1355000},"01.07.2026":{a1:3145000,a12:332000,a19:1845000,a2:2649000,a23:316000,a3:1641000,a4:1597000},"01.08.2026":{a13:184000,a14:124000,a1:3081000,a12:491000,a19:1937000,a2:2678000,a23:316000,a3:1612000,a4:1676000}},
+  debts:{"01.08.2026":{d1:4765914}},
+  goals:{a1:2800000,a6:1600000},
+  iis:{dep:300000},
+  years:{"2024":{pas:318570},"2025":{pas:987227}},
+  bank:{"Январь":35108,"Февраль":12098,"Март":14722,"Апрель":13663,"Май":7697,"Июнь":5596,"Июль":5516,"Август":5165},
+  div:{"Январь":197731,"Февраль":131973,"Март":163817,"Апрель":250870,"Май":170361,"Июнь":291579,"Июль":216977,"Август":226174},
+  wd:{"Январь":0,"Февраль":0,"Март":0,"Апрель":24829,"Май":13207,"Июнь":13799,"Июль":29437,"Август":28179}
+};
+function applyPatch(){
+  Object.entries(PATCH.capital).forEach(([d,m])=>{S.capital[d]=S.capital[d]||{};
+    Object.entries(m).forEach(([k,v])=>{S.capital[d][k]=v});});
+  Object.entries(PATCH.debts).forEach(([d,m])=>{S.debts[d]=Object.assign({},m,S.debts[d]||{})});
+  Object.entries(PATCH.goals).forEach(([k,v])=>{if(!S.goals[k])S.goals[k]=v});
+  if(!num(S.iis&&S.iis.dep))S.iis={dep:PATCH.iis.dep};
+  S.years=S.years||{};
+  Object.entries(PATCH.years).forEach(([y,m])=>{S.years[y]=S.years[y]||{};
+    Object.entries(m).forEach(([k,v])=>{if(!num(S.years[y][k]))S.years[y][k]=v;});});
+  Object.entries(PATCH.wd).forEach(([m,v])=>{S.income[m]=S.income[m]||{}; S.income[m].wd=v});
+  Object.entries(PATCH.div).forEach(([m,v])=>{S.income[m]=S.income[m]||{}; S.income[m].div=v});
+  Object.entries(PATCH.bank).forEach(([m,v])=>{S.income[m]=S.income[m]||{}; S.income[m].bank=v});
+  S.patch=PATCH_V;
+}
+const KEY="uchet-2026";
+async function load(){
+  try{const t=localStorage.getItem(KEY);
+    if(t){const d=JSON.parse(t);
+      if(d.income)S.income=d.income; if(d.capital)S.capital=d.capital; if(d.goal)S.goal=d.goal; if(d.debts)S.debts=d.debts; if(d.goals)S.goals=d.goals; if(d.iis)S.iis=d.iis; if(d.ops)S.ops=d.ops; if(d.years)S.years=d.years;
+      if((d.patch||0)<PATCH_V){applyPatch();save();}
+      return;}}catch(e){}
+  try{const r=await window.storage.get(KEY);const d=JSON.parse(r.value);
+    if(d.income)S.income=d.income; if(d.capital)S.capital=d.capital; if(d.goal)S.goal=d.goal; if(d.debts)S.debts=d.debts; if(d.goals)S.goals=d.goals; if(d.iis)S.iis=d.iis; if(d.ops)S.ops=d.ops; if(d.years)S.years=d.years;
+    if((d.patch||0)<PATCH_V){applyPatch();save();}
+    return;}catch(e){}
+  applyPatch();
+}
+let saveTimer;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    const t=JSON.stringify(S); let ok=false;
+    try{localStorage.setItem(KEY,t); ok=true;}catch(e){}
+    try{await window.storage.set(KEY,t); ok=true;}catch(e){}
+    if(ok)flash(); else warn();
+  },400);
+}
+function warn(){const el=document.getElementById("saved");if(!el)return;
+  el.textContent="НЕ СОХРАНЕНО";el.style.color="var(--cop)";}
+function flash(){const el=document.getElementById("saved");if(!el)return;
+  el.textContent="сохранено";el.style.color="var(--mal)";setTimeout(()=>{el.style.color="transparent"},1500);}
+
+function impErr(t){const m=document.getElementById("impmsg");
+  if(m){m.textContent=t;m.style.color="var(--cop)";}}
+function applyImport(text){
+  let d; try{d=JSON.parse(text);}catch(e){return false;}
+  if(!d||typeof d!=="object"||!d.income||!d.capital)return false;
+  S.income=d.income; S.capital=d.capital;
+  if(d.goal)S.goal=d.goal;
+  S.debts=d.debts||{}; S.goals=d.goals||{};
+  S.iis=d.iis||{}; S.ops=d.ops||[]; S.years=d.years||JSON.parse(JSON.stringify(YEARS_SEED));
+  S.patch=d.patch||0;
+  if((S.patch||0)<PATCH_V)applyPatch();
+  save(); render();
+  const m=document.getElementById("impmsg");
+  if(m){m.textContent="Данные загружены.";m.style.color="var(--mal)";}
+  return true;
+}
+
+function mrow(m){const v=S.income[m]||{};
+  const p=num(v.bank)+num(v.div),sal=num(v.salary),kat=num(v.katya),e=num(v.pi)+num(v.other);
+  const hasW=v.wd!==undefined&&v.wd!=="",wd=hasW?Math.min(num(v.wd),p):p,reinv=hasW?p-wd:0;
+  return{m,p,sal,kat,a:sal+kat,e,wd,reinv,hasW,t:p+sal+kat+e};}
+const rows=()=>MONTHS.map(mrow);
+const capSum=d=>ACCOUNTS.reduce((s,a)=>s+num((S.capital[d]||{})[a[0]]),0);
+
+function stats(){
+  const R=rows(),f=R.filter(r=>r.t>0);
+  const ytd=f.reduce((s,r)=>s+r.t,0),yp=f.reduce((s,r)=>s+r.p,0);
+  const ysal=f.reduce((s,r)=>s+r.sal,0),ykat=f.reduce((s,r)=>s+r.kat,0);
+  const ywd=f.reduce((s,r)=>s+r.wd,0),yreinv=f.reduce((s,r)=>s+r.reinv,0);
+  const anyW=f.some(r=>r.hasW),budget=ytd-yreinv;
+  const ex=MONTHS.map(m=>num((S.income[m]||{}).exp)).filter(v=>v>0);
+  const yexp=ex.reduce((a,b)=>a+b,0),avgExp=ex.length?yexp/ex.length:0;
+  const rn=MONTHS.map(m=>num((S.income[m]||{}).reno)).filter(v=>v>0);
+  const yreno=rn.reduce((a,b)=>a+b,0);
+  let renoEst=0;
+  RENO_ACC.forEach(id=>{const v=DATES.map(d=>(S.capital[d]||{})[id]).filter(x=>x!==undefined&&x!==null);
+    for(let i=1;i<v.length;i++)renoEst+=Math.max(0,v[i-1]-v[i]);});
+  const dt=DATES.map(d=>({d,t:capSum(d)})),wd=dt.filter(x=>x.t>0);
+  const now=wd.length?wd[wd.length-1]:{d:"—",t:0};
+  return{R,f,ytd,yp,ysal,ykat,ywd,yreinv,anyW,budget,avgBudget:f.length?budget/f.length:0,yexp,avgExp,nexp:ex.length,yreno,nreno:rn.length,renoEst,avg:f.length?ytd/f.length:0,avgP:f.length?yp/f.length:0,dt,wd,now,delta:now.t-dt[0].t};
+}
+
+function barChart(R){
+  const W=340,H=150,pad=16,bw=(W-pad)/12,max=Math.max(...R.map(r=>r.t),1);
+  let s=`<svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">`;
+  for(let i=0;i<=3;i++){const y=H-(H-10)*i/3;
+    s+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" stroke="#D3D6CF" stroke-width="1"/>`;
+    s+=`<text x="0" y="${y+3}" font-size="8" fill="#6E7873">${Math.round(max*i/3/1000)}</text>`;}
+  R.forEach((r,i)=>{
+    const x=pad+i*bw+2,w=bw-4;let y=H;
+    [[r.p,"#176B54"],[r.sal,"#4A6FA5"],[r.kat,"#93AECC"],[r.e,"#B25B2A"]].forEach(([v,c])=>{
+      const h=(H-10)*v/max;y-=h;
+      if(h>0)s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;});
+    s+=`<text x="${x+w/2}" y="${H+12}" font-size="8" fill="#6E7873" text-anchor="middle">${SHORT[i]}</text>`;});
+  return s+"</svg>";
+}
+function lineChart(wd,alt){
+  const W=340,H=130,pad=22;
+  if(wd.length<2)return`<div style="font-size:11px;color:var(--muted);padding:16px 0">Нужно минимум два среза капитала.</div>`;
+  const all=wd.map(x=>x.t).concat(alt||[]);
+  const mn=Math.min(...all)*0.995,mx=Math.max(...all)*1.005;
+  const X=i=>pad+(W-pad-6)*i/(wd.length-1),Y=v=>H-8-(H-24)*(v-mn)/(mx-mn||1);
+  let s=`<svg viewBox="0 0 ${W} ${H+16}" style="width:100%;height:auto">`;
+  for(let i=0;i<=2;i++){const v=mn+(mx-mn)*i/2,y=Y(v);
+    s+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" stroke="#D3D6CF"/>`;
+    s+=`<text x="0" y="${y+3}" font-size="8" fill="#6E7873">${(v/1e6).toFixed(1)}</text>`;}
+  s+=`<polygon fill="#176B54" fill-opacity="0.09" points="${X(0)},${H-8} ${wd.map((x,i)=>X(i)+","+Y(x.t)).join(" ")} ${X(wd.length-1)},${H-8}"/>`;
+  s+=`<polyline fill="none" stroke="#176B54" stroke-width="2" points="${wd.map((x,i)=>X(i)+","+Y(x.t)).join(" ")}"/>`;
+  if(alt&&alt.length===wd.length)
+    s+=`<polyline fill="none" stroke="#6E7873" stroke-width="1.6" stroke-dasharray="4 3" points="${alt.map((v,i)=>X(i)+","+Y(v)).join(" ")}"/>`;
+  wd.forEach((x,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(x.t)}" r="3" fill="#176B54"/>`;
+    s+=`<text x="${X(i)}" y="${H+12}" font-size="8" fill="#6E7873" text-anchor="middle">${x.d.slice(0,5)}</text>`;});
+  return s+"</svg>";
+}
+function scale(avg,avgP,budgetMode){
+  const mx=1100000,p=v=>Math.min(100,v/mx*100);
+  let t=`<div style="position:relative;padding:34px 0 92px">
+    <div style="position:absolute;left:${p(avg)}%;top:0;transform:translateX(-50%);white-space:nowrap">
+      <div class="mono" style="font-size:14px;font-weight:700;text-align:center;letter-spacing:-.02em">${fmt(avg)}</div>
+      <div style="font-size:8px;color:var(--muted);text-align:center;letter-spacing:.06em">₽ / МЕС</div>
+      <div style="width:1px;height:8px;background:var(--ink);margin:2px auto 0"></div></div>
+    <div style="position:relative;height:10px;background:#fff;border:1px solid var(--line)">
+      <div style="position:absolute;inset:0 auto 0 0;width:${p(avg)}%;background:var(--ink)"></div>
+      <div style="position:absolute;inset:0 auto 0 0;width:${p(avgP)}%;background:var(--mal)"></div>`;
+  LEVELS.forEach(([,m])=>{t+=`<div style="position:absolute;left:${p(m)}%;top:-3px;bottom:-3px;width:1px;background:var(--muted)"></div>`});
+  t+=`</div>`;
+  LEVELS.forEach(([n,m],i)=>{
+    const sh=i===0?"-32%":i===4?"-68%":"-50%";
+    t+=`<div style="position:absolute;left:${p(m)}%;top:${i%2?66:42}px;transform:translateX(${sh});text-align:center">
+      <div style="font-size:8px;letter-spacing:.06em;white-space:nowrap;color:${avg>=m?"var(--ink)":"var(--muted)"};font-weight:${avg>=m?700:400}">${n}</div>
+      <div class="mono" style="font-size:8px;color:var(--muted)">${m/1000}к</div></div>`;});
+  t+=`</div><div class="lg" style="flex-direction:column;gap:4px;align-items:flex-start">
+    <span><i class="sw" style="background:var(--ink)"></i>${budgetMode?"всего дошло до бюджета":"весь доход"} — <b class="mono" style="color:var(--ink)">${fmt(avg)} ₽/мес</b></span>
+    <span><i class="sw" style="background:var(--mal)"></i>${budgetMode?"из них с брокерских счетов на карту":"из них пассивный доход"} — <b class="mono" style="color:var(--ink)">${fmt(avgP)} ₽/мес</b></span></div>`;
+  return t;
+}
+function structure(d){
+  const tot=capSum(d)||1;let b="",l="";
+  GROUPS.forEach(g=>{const v=ACCOUNTS.filter(a=>a[3]===g).reduce((s,a)=>s+num((S.capital[d]||{})[a[0]]),0);
+    b+=`<div style="width:${v/tot*100}%;background:${GC[g]}"></div>`;
+    l+=`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:var(--muted)">
+      <span style="display:flex;align-items:center;gap:6px"><i class="sw" style="background:${GC[g]}"></i>${g}</span>
+      <span class="mono" style="color:var(--ink)">${fmt(v)} · ${Math.round(v/tot*100)}%</span></div>`;});
+  return`<div style="margin-top:16px"><div style="display:flex;height:8px;margin-bottom:10px">${b}</div>${l}</div>`;
+}
+
+function render(){
+  const st=stats();
+  let h=`<div class="hd"><span class="eyebrow">Личный учёт · 2026</span>
+    <span class="eyebrow" id="saved" style="color:transparent">сохранено</span></div>
+    <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px">
+      <span class="mono" style="font-size:29px;font-weight:600;letter-spacing:-.02em">${(st.now.t/1e6).toFixed(2).replace(".",",")} млн</span>
+      <span class="mono" style="font-size:13px;color:${st.delta>=0?"var(--mal)":"var(--cop)"}">${st.delta>=0?"+":"−"}${fmt(Math.abs(st.delta))} ₽</span></div>
+    <div style="font-size:11px;color:var(--muted);margin:2px 0 14px">капитал на ${st.now.d} · с 31.12.2025${debtSum(st.now.d)?` · чистый <b class="mono" style="color:var(--ink)">${fmt(st.now.t-debtSum(st.now.d))} ₽</b>`:""}</div>
+    <nav style="display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch">
+      ${[["obzor","Обзор"],["an","Анализ"],["income","Доходы"],["cap","Капитал"],["log","Журнал"],["goals","Цели"],["yr","Годы"]].map(([k,l])=>
+        `<button class="tab ${V.tab===k?"on":""}" data-tab="${k}">${l}</button>`).join("")}</nav>`;
+
+  if(V.tab==="obzor"){
+    h+=deadlineCard()+todoCard()+checks()+iisCard()+dedCard();
+    h+=`<div class="card"><div class="eyebrow">Шкала уровня жизни</div>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0 0">${st.anyW?"доход, дошедший до бюджета семьи":"средний доход на семью в месяц"}</div>
+      ${scale(st.anyW?st.avgBudget:st.avg,st.anyW?st.ywd/(st.f.length||1):st.avgP,st.anyW)}</div>
+      <div class="grid2">
+        ${kpi("Доход с начала года",fmt(st.ytd)+" ₽",st.f.length+" мес.")}
+        ${kpi("В среднем в месяц",fmt(st.avg)+" ₽","все источники")}
+        ${kpi("Пассивный доход",fmt(st.yp)+" ₽",fmt(st.avgP)+" ₽ / мес.","var(--mal)")}
+        ${kpi("Доля пассивного",st.ytd?Math.round(st.yp/st.ytd*100)+"%":"—","от всех доходов","var(--mal)")}
+      </div>
+      ${fiCard(st)}
+      ${expCard(st)}
+      ${capitalCard(st)}
+`;
+  }
+
+  if(V.tab==="an"){
+    h+=`      ${monthsCard(st.R)}
+      <div class="card"><div class="eyebrow">Активный доход</div>
+        <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">зарплата и ПИ Кати · ${st.f.length} мес.</div>
+        ${split(st)}</div>
+      ${flowCard(st)}
+      ${passiveCard(st)}
+      ${curCard(st.now.d)}
+      ${mortCard()}
+      ${retCard()}
+      ${pnlCard()}
+      ${taxCard(st)}
+      ${spreadCard()}
+      <div class="card"><div class="eyebrow">Кварталы</div><table class="mono" style="font-size:11px;margin-top:8px">
+        <tr style="color:var(--muted);font-size:9px"><th></th><th style="text-align:right;font-weight:500">ПАССИВ</th>
+        <th style="text-align:right;font-weight:500">ЗП</th><th style="text-align:right;font-weight:500">КАТЯ</th><th style="text-align:right;font-weight:500">ДОП.</th>
+        <th style="text-align:right;font-weight:500">ИТОГ</th></tr>`;
+    [0,1,2,3].forEach(q=>{const sl=st.R.slice(q*3,q*3+3),sm=k=>sl.reduce((s,r)=>s+r[k],0);
+      h+=`<tr style="border-top:1px solid var(--line)">
+        <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif">${["I","II","III","IV"][q]} кв.</td>
+        <td style="text-align:right;color:var(--mal)">${fmt(sm("p"))}</td><td style="text-align:right">${fmt(sm("sal"))}</td><td style="text-align:right;color:var(--muted)">${fmt(sm("kat"))}</td>
+        <td style="text-align:right">${fmt(sm("e"))}</td><td style="text-align:right;font-weight:600">${fmt(sm("t"))}</td></tr>`});
+    h+=`<tr style="border-top:2px solid var(--ink)"><td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Год</td>
+      <td style="text-align:right;color:var(--mal)">${fmt(st.yp)}</td>
+      <td style="text-align:right">${fmt(st.f.reduce((s,r)=>s+r.sal,0))}</td>
+      <td style="text-align:right;color:var(--muted)">${fmt(st.f.reduce((s,r)=>s+r.kat,0))}</td>
+      <td style="text-align:right">${fmt(st.f.reduce((s,r)=>s+r.e,0))}</td>
+      <td style="text-align:right;font-weight:700">${fmt(st.ytd)}</td></tr></table></div>
+      <button id="prn" style="width:100%;padding:10px;margin-bottom:8px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:12px">Распечатать или сохранить в PDF</button>
+      <button id="exp" style="width:100%;padding:10px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:12px">Выгрузить / загрузить данные</button>
+      <div id="expwrap" style="display:none">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="dl" style="flex:1;padding:10px;background:var(--mal);border:1px solid var(--mal);border-radius:3px;color:#fff;font-size:12px">Скачать файл</button>
+          <button id="ul" style="flex:1;padding:10px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--ink);font-size:12px">Загрузить файл</button></div>
+        <input id="ulinp" type="file" accept=".json,application/json" style="display:none">
+        <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.45">Файл со всеми данными — доходы, капитал, долги, цели, журнал, годы. Держите его в облаке: это единственная копия вне браузера. При загрузке текущие данные заменяются целиком.</div>
+        <div style="border-top:1px solid var(--line);margin:12px 0 0;padding-top:10px;font-size:10px;color:var(--muted)">Или через буфер обмена</div>
+        <textarea id="expbox" style="width:100%;height:90px;margin-top:6px;font-size:10px;font-family:ui-monospace,monospace;border:1px solid var(--line);border-radius:3px;padding:8px"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button id="cpy" style="flex:1;padding:9px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:12px">Скопировать</button>
+          <button id="imp" style="flex:1;padding:9px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:12px">Загрузить из текста</button></div>
+        <div id="impmsg" style="font-size:10px;color:var(--muted);margin-top:6px">Вставьте сюда выгрузку и нажмите «Загрузить» — текущие данные будут заменены.</div></div>`;
+  }
+
+  if(V.tab==="income"){
+    const r=mrow(V.month);
+    h+=`<div class="chips">${MONTHS.map((m,i)=>{const f=mrow(m).t>0;
+      return`<button class="chip ${V.month===m?"on":f?"has":""}" data-m="${m}">${SHORT[i]}</button>`}).join("")}</div>
+      <div class="card"><div class="eyebrow">${V.month}</div><div style="margin-top:12px">`;
+    FIELDS.forEach(([k,l])=>{const v=(S.income[V.month]||{})[k];
+      h+=`<div class="row"><label style="flex:1;font-size:13px">${l}</label>
+        <input inputmode="numeric" data-f="${k}" value="${v===undefined||v===""?"":fmt(v)}" placeholder="0"></div>`});
+    h+=`</div><div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px" class="mono">
+      ${dl("Итого % и БР","d-p",r.p,"var(--mal)")}${dl("Итого Зарплата + Катя","d-a",r.a)}${dl("Итого дополнительно","d-e",r.e)}
+      <div style="display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:8px;padding-top:8px;font-weight:700;font-size:16px">
+        <span style="font-family:'Inter',system-ui,sans-serif">Итого</span><span id="d-t">${fmt(r.t)} ₽</span></div></div>
+      <div class="row" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+        <label style="flex:1;font-size:13px;color:var(--mal)">Из них выведено на карту</label>
+        <input inputmode="numeric" data-f="wd" value="${(S.income[V.month]||{}).wd!==undefined?fmt(S.income[V.month].wd):""}" placeholder="0"></div>
+      <div class="row">
+        <label style="flex:1;font-size:13px;color:var(--cop)">Расходы за месяц</label>
+        <input inputmode="numeric" data-f="exp" value="${(S.income[V.month]||{}).exp?fmt(S.income[V.month].exp):""}" placeholder="0"></div>
+      <div class="row">
+        <label style="flex:1;font-size:13px;color:var(--gold)">Ремонт (разово)</label>
+        <input inputmode="numeric" data-f="reno" value="${(S.income[V.month]||{}).reno?fmt(S.income[V.month].reno):""}" placeholder="0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">
+        <span>Сбережено</span><span class="mono" id="d-s" style="color:var(--ink)">${(S.income[V.month]||{}).exp?fmt(r.t-num(S.income[V.month].exp))+" ₽":"—"}</span></div></div>
+      <div class="card"><div class="eyebrow">Все месяцы</div>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0 2px">нажмите на месяц, чтобы открыть его выше</div>
+      <table class="mono" style="font-size:12px;margin-top:8px">
+        <tr style="color:var(--muted);font-size:9px;letter-spacing:.06em">
+          <th style="text-align:left;font-weight:500;padding-bottom:5px">МЕСЯЦ</th>
+          <th style="text-align:right;font-weight:500;padding-bottom:5px;color:var(--mal)">ПАССИВНЫЙ</th>
+          <th style="text-align:right;font-weight:500;padding-bottom:5px">ВСЕГО</th></tr>`;
+    st.R.forEach(x=>{h+=`<tr data-m="${x.m}" style="border-top:1px solid var(--line);${x.m===V.month?"background:#fff":""}">
+      <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif">${x.m}</td>
+      <td style="text-align:right;color:var(--mal);font-size:11px">${x.p?fmt(x.p):""}</td>
+      <td style="text-align:right;font-weight:600">${x.t?fmt(x.t):"—"}</td></tr>`});
+    h+=`<tr style="border-top:2px solid var(--ink)">
+      <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">За год</td>
+      <td style="text-align:right;color:var(--mal);font-size:11px">${fmt(st.yp)}</td>
+      <td style="text-align:right;font-weight:700">${fmt(st.ytd)}</td></tr>`;
+    h+=`</table></div>`;
+  }
+
+  if(V.tab==="cap"){
+    h+=`<div class="chips">${DATES.map(d=>{const f=capSum(d)>0;
+      return`<button class="chip ${V.date===d?"on":f?"has":""}" data-d="${d}">${d.slice(0,5)}</button>`}).join("")}</div>
+      <div class="card"><div class="hd"><span class="eyebrow">${V.date}</span>
+      <span class="mono" id="c-tot" style="font-weight:700;font-size:17px">${fmt(capSum(V.date))} ₽</span></div>`;
+    GROUPS.forEach(g=>{const L=ACCOUNTS.filter(a=>a[3]===g);
+      const gs=L.reduce((s,a)=>s+num((S.capital[V.date]||{})[a[0]]),0);
+      h+=`<div style="margin-top:16px"><div class="hd" style="margin-bottom:8px">
+        <span class="eyebrow" style="color:${GC[g]}">${g}</span>
+        <span class="mono" id="g-${GROUPS.indexOf(g)}" style="font-size:11px;color:var(--muted)">${fmt(gs)}</span></div>`;
+      L.forEach(a=>{const v=(S.capital[V.date]||{})[a[0]];
+        h+=`<div class="row"><div style="flex:1;min-width:0">
+          <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a[2])}</div>
+          <div style="font-size:10px;color:var(--muted)">${esc(a[1])}</div></div>
+          <input inputmode="numeric" data-acc="${a[0]}" value="${v===undefined?"":fmt(v)}" placeholder="0"></div>`});
+      h+=`</div>`});
+    const ds=debtSum(V.date);
+    h+=`<div style="margin-top:22px;border-top:2px solid var(--ink);padding-top:14px">
+      <div class="hd" style="margin-bottom:10px"><span class="eyebrow" style="color:var(--cop)">Обязательства</span>
+      <span class="mono" id="d-tot" style="font-size:11px;color:var(--muted)">${ds?"− "+fmt(ds):"—"}</span></div>`;
+    DEBTS.forEach(x=>{const v=(S.debts[V.date]||{})[x[0]];
+      h+=`<div class="row"><label style="flex:1;font-size:13px">${x[1]}</label>
+        <input inputmode="numeric" data-debt="${x[0]}" value="${v===undefined?"":fmt(v)}" placeholder="0"></div>`});
+    h+=`<div style="display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:10px;padding-top:9px;font-size:13px;font-weight:600">
+      <span>Чистый капитал</span><span class="mono" id="net-tot">${fmt(capSum(V.date)-ds)} ₽</span></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4">Остаток долга по каждой ипотеке. Чистый капитал = активы минус обязательства.</div></div>`;
+    h+=`<div style="margin-top:18px;border-top:1px solid var(--line);padding-top:12px">
+      <div class="hd" style="margin-bottom:8px"><span class="eyebrow" style="color:var(--muted)">Справочно</span>
+      <span class="mono" style="font-size:11px;color:var(--muted)">${fmt(INFO_DEBTS.reduce((s,x)=>s+x[3],0))}</span></div>`;
+    INFO_DEBTS.forEach(x=>{h+=`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0">
+      <div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--muted)">${x[1]}</div>
+      <div style="font-size:10px;color:var(--muted)">${x[2]}</div></div>
+      <span class="mono" style="font-size:13px;color:var(--muted)">${fmt(x[3])} ₽</span></div>`});
+    h+=`<div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4">Оформлено на вас, но платежи вносят родители и квартира их. В чистый капитал не входит и ни на какие расчёты не влияет.</div></div>`;
+    const prev=DATES[DATES.indexOf(V.date)-1];
+    if(prev&&capSum(prev)>0)h+=`<button id="copyprev" style="width:100%;padding:11px;margin-top:16px;background:none;border:1px solid var(--line);border-radius:5px;color:var(--ink);font-size:12px">Скопировать остатки с ${prev}</button>`;
+    h+=`</div>`;
+  }
+  if(V.tab==="log"){ h+=journalTab(); }
+  if(V.tab==="goals"){ h+=goalsTab(); }
+  if(V.tab==="yr"){ h+=yearsTab(); }
+
+  document.getElementById("app").innerHTML=h;
+  bind();
+}
+function years(cap,req,r,c){
+  if(r<=0||cap>=req)return cap>=req?0:null;
+  const a=req*r+c,b=cap*r+c;
+  if(a<=0||b<=0)return null;
+  const n=Math.log(a/b)/Math.log(1+r);
+  return(n>0&&n<80)?n:null;}
+
+function fiCard(st){
+  const cap=st.now.t,passMo=st.avgP,yield_=cap?passMo*12/cap:0;
+  const tg=S.goal,cov=tg?passMo/tg:0;
+  const req=yield_>0?tg*12/yield_:0,gap=req-cap;
+  const n=st.f.length||1,reno=st.nreno?st.yreno:st.renoEst;
+  const impliedExp=Math.max(0,(st.ytd-st.delta-reno)/n);
+  const exp=st.avgExp||impliedExp;
+  const sav=(st.avg-exp)*12;
+  const yrs=years(cap,req,yield_,sav);
+  const opts=[["по моим расходам",Math.round(exp)]].concat(LEVELS.map(l=>[l[0]+" · "+l[1]/1000+"к",l[1]]))
+    .map(([n,v])=>`<option value="${v}" ${v==tg?"selected":""}>${n}</option>`).join("");
+  return `<div class="card"><div class="eyebrow">Финансовая независимость</div>
+    <div style="display:flex;align-items:center;gap:8px;margin:8px 0 14px">
+      <span style="font-size:11px;color:var(--muted)">цель</span>
+      <select id="goal" style="flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:#fff;font-size:12px;font-family:inherit;color:var(--ink)">${opts}</select></div>
+    <div style="position:relative;height:12px;background:#fff;border:1px solid var(--line);margin-bottom:6px">
+      <div style="position:absolute;inset:0 auto 0 0;width:${Math.min(100,cov*100)}%;background:var(--mal)"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:14px">
+      <span>пассив <b class="mono" style="color:var(--ink)">${fmt(passMo)} ₽/мес</b></span>
+      <span><b class="mono" style="color:var(--mal)">${Math.round(cov*100)}%</b> от цели ${fmt(tg)} ₽</span></div>
+    ${fl("Доходность портфеля",(yield_*100).toFixed(1).replace(".",",")+"% годовых")}
+    ${fl("Нужен капитал",fmt(req)+" ₽")}
+    ${fl("Не хватает",fmt(gap)+" ₽","var(--cop)")}
+    ${fl("Накопления в год",(sav>=0?"":"−")+fmt(Math.abs(sav))+" ₽",sav>=0?"var(--mal)":"var(--cop)")}
+    ${fl("До цели",yrs===null?"не достигается при текущем темпе":yrs.toFixed(1).replace(".",",")+" лет",yrs===null?"var(--cop)":"var(--ink)")}
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Доходность считается от фактического пассивного дохода за ${st.f.length} мес. к текущему капиталу.${st.avgExp?"":" Регулярные расходы взяты расчётно: отток за вычетом ремонта ("+fmt(reno)+" ₽)."}</div></div>`;
+}
+function flowCard(st){
+  const tot=st.yp||1,w=st.ywd/tot*100;
+  return `<div class="card"><div class="eyebrow">Пассивный доход: куда он идёт</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">${st.anyW?"по внесённым данным":"не заполнено — весь доход считается выведенным"}</div>
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+      <div style="width:${w}%;background:var(--mal)"></div>
+      <div style="width:${100-w}%;background:var(--kat)"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px">
+      <span><i class="sw" style="background:var(--mal)"></i> в бюджет</span>
+      <span><i class="sw" style="background:var(--kat)"></i> обратно в портфель</span></div>
+    ${fl("Пассивный доход всего",fmt(st.yp)+" ₽")}
+    ${fl("Выведено на карту",fmt(st.ywd)+" ₽","var(--mal)")}
+    ${fl("Реинвестировано",fmt(st.yreinv)+" ₽","var(--kat)")}
+    ${fl("Доход, дошедший до бюджета",fmt(st.budget)+" ₽")}
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Реинвестированное остаётся в капитале и не тратится. Для шкалы уровня жизни учитывается только то, что дошло до бюджета; для расчёта финансовой независимости — весь пассивный доход.</div></div>`;
+}
+function fl(l,v,c){return`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)">
+  <span style="font-size:12px;color:var(--muted)">${l}</span><span class="mono" style="font-weight:600;font-size:13px;color:${c||"var(--ink)"}">${v}</span></div>`}
+
+function expCard(st){
+  const n=st.f.length||1,out=st.ytd-st.delta;
+  const reno=st.nreno?st.yreno:st.renoEst;
+  const reg=st.nexp?st.avgExp*n:Math.max(0,out-reno);
+  const rest=out-reno-reg;
+  const regMo=reg/n,budMo=st.anyW?st.avgBudget:st.avg;
+  const rate=budMo?(budMo-regMo)/budMo*100:0;
+  const w=Math.max(0,Math.min(100,regMo/(budMo||1)*100));
+  return `<div class="card"><div class="eyebrow">Расходы и норма сбережений</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">${st.nexp?"по внесённым расходам · "+st.nexp+" мес.":"расчётно · сравнение с доходом, дошедшим до бюджета"}</div>
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+      <div style="width:${w}%;background:var(--cop)"></div>
+      <div style="width:${Math.max(0,100-w)}%;background:var(--mal)"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px">
+      <span>расходы ${fmt(regMo)} ₽/мес</span>
+      <span>из бюджета ${fmt(budMo)} ₽/мес</span></div>
+    ${fl("Норма сбережений",(rate>=0?"":"−")+Math.abs(Math.round(rate))+"%",rate>=0?"var(--mal)":"var(--cop)")}
+    ${fl("Доход бюджета за "+n+" мес.",fmt(st.anyW?st.budget:st.ytd)+" ₽")}
+    ${fl("Весь доход, вкл. реинвестированный",fmt(st.ytd)+" ₽","var(--muted)")}
+    ${fl("Изменение капитала",(st.delta>=0?"+":"−")+fmt(Math.abs(st.delta))+" ₽",st.delta>=0?"var(--mal)":"var(--cop)")}
+    ${fl("Всего ушло из капитала",fmt(out)+" ₽","var(--cop)")}
+    ${fl("Ремонт"+(st.nreno?"":" (оценка по вкладам)"),"− "+fmt(reno)+" ₽","var(--gold)")}
+    ${fl("Регулярные расходы","− "+fmt(reg)+" ₽","var(--cop)")}
+    ${Math.abs(rest)>1000?fl("Не объяснено",fmt(rest)+" ₽","var(--muted)"):""}
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Норма сбережений считается от дохода, дошедшего до бюджета: реинвестированные купоны потратить нельзя, они уже в капитале. Ремонт оценён по оттоку с вкладов в Альфа-Банке, включая майское пополнение.</div></div>`;
+}
+
+function renoCum(){
+  const out={}; let acc=0; let prev=null;
+  DATES.forEach(d=>{
+    if(capSum(d)>0){
+      if(prev)RENO_ACC.forEach(id=>{
+        const a=num((S.capital[prev]||{})[id]),b=num((S.capital[d]||{})[id]);
+        if(a>b)acc+=a-b;});
+      out[d]=acc; prev=d;}});
+  return out;
+}
+function debtSum(d){return DEBTS.reduce((s,x)=>s+num((S.debts[d]||{})[x[0]]),0)}
+function checks(){
+  const out=[];
+  const filledDates=DATES.filter(d=>capSum(d)>0);
+  const cnt=d=>ACCOUNTS.filter(a=>(S.capital[d]||{})[a[0]]!==undefined&&(S.capital[d]||{})[a[0]]!==null).length;
+  const maxCnt=Math.max(...filledDates.map(cnt),0);
+  filledDates.forEach(d=>{const c=cnt(d);
+    if(c<maxCnt-1)out.push(["Неполный срез "+d,`заполнено ${c} счетов из ${maxCnt} — итог за эту дату занижен`]);});
+  const gapIdx=DATES.findIndex((d,i)=>i>0&&i<DATES.length-1&&capSum(d)===0&&capSum(DATES[i-1])>0&&DATES.slice(i+1).some(x=>capSum(x)>0));
+  if(gapIdx>0)out.push(["Пропущен срез "+DATES[gapIdx],"между заполненными датами дыра — график капитала рвётся"]);
+  for(let i=1;i<filledDates.length;i++){
+    ACCOUNTS.forEach(a=>{
+      if(RENO_ACC.indexOf(a[0])>=0)return;
+      const p=num((S.capital[filledDates[i-1]]||{})[a[0]]),c=num((S.capital[filledDates[i]]||{})[a[0]]);
+      if(!p||!c)return; const dif=c-p;
+      if(Math.abs(dif)>150000&&Math.abs(dif)/p>0.4)
+        out.push([esc(a[2])+" · "+filledDates[i],`${dif>0?"рост":"падение"} на ${Math.round(Math.abs(dif)/p*100)}% (${fmt(Math.abs(dif))} ₽) — проверьте, был ли перевод`]);});}
+  const last=filledDates[filledDates.length-1];
+  Object.keys(VERIFIED).forEach(k=>{
+    const ids=VERIFIED[k].ids||[k];
+    const v=ids.reduce((s,id)=>s+num((S.capital[last]||{})[id]),0); if(!v)return;
+    const dif=v-VERIFIED[k].v1;
+    if(Math.abs(dif)>25000)
+      out.push([VERIFIED[k].n+" не сходится с отчётом",`в таблице ${fmt(v)}, по отчёту ${fmt(VERIFIED[k].v1)} — разница ${fmt(Math.abs(dif))} ₽`]);});
+  const R=rows();
+  MONTHS.forEach((m,i)=>{const r=R[i];
+    if(r.t===0&&R.slice(0,i).some(x=>x.t>0)&&R.slice(i+1).some(x=>x.t>0))
+      out.push(["Пропущен месяц: "+m,"доход не внесён, а соседние месяцы заполнены"]);
+    if(r.hasW&&num((S.income[m]||{}).wd)>r.p)
+      out.push([m+": выведено больше дохода",`${fmt(num(S.income[m].wd))} ₽ при пассивном доходе ${fmt(r.p)} ₽`]);});
+  const st=stats();
+  if(!st.nexp)out.push(["Расходы не внесены","считаются косвенно — из разницы дохода и капитала, точность низкая"]);
+  if(!out.length)return `<div class="card"><div class="eyebrow" style="color:var(--mal)">Проверка данных</div>
+    <div style="font-size:12px;margin-top:8px">Ошибок не найдено.</div></div>`;
+  let h=`<div class="card"><div class="eyebrow" style="color:var(--cop)">Проверка данных · ${out.length}</div>`;
+  out.slice(0,10).forEach(([t,d])=>{h+=`<div style="border-top:1px solid var(--line);padding:8px 0">
+    <div style="font-size:12px;font-weight:600">${t}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">${d}</div></div>`;});
+  if(out.length>10)h+=`<div style="font-size:11px;color:var(--muted);padding-top:8px">…и ещё ${out.length-10}</div>`;
+  return h+`</div>`;
+}
+function todoCard(){
+  const R=rows();
+  let mi=R.map(r=>r.t>0).lastIndexOf(true); mi=Math.min(11,mi+1);
+  const m=MONTHS[mi],v=S.income[m]||{};
+  let li=-1; DATES.forEach((d,i)=>{if(capSum(d)>0)li=i;});
+  const di=Math.min(DATES.length-1,li+1);
+  const d=DATES[di];
+  const nAcc=ACCOUNTS.length, done=ACCOUNTS.filter(a=>(S.capital[d]||{})[a[0]]!==undefined).length;
+  const item=(ok,t)=>`<div style="display:flex;gap:9px;align-items:baseline;padding:5px 0">
+    <span style="color:${ok?"var(--mal)":"var(--line)"};font-size:13px">${ok?"✓":"○"}</span>
+    <span style="font-size:12px;color:${ok?"var(--muted)":"var(--ink)"}">${t}</span></div>`;
+  let h=`<div class="card"><div class="eyebrow">Что внести</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 10px">доходы за ${m} · капитал на ${d}</div>`;
+  FIELDS.forEach(([k,l])=>{h+=item(v[k]!==undefined&&v[k]!=="",l+" за "+m);});
+  h+=item(v.wd!==undefined,"Выведено на карту за "+m);
+  h+=item(v.exp!==undefined,"Расходы за "+m);
+  h+=item(done>=nAcc,`Остатки по счетам на ${d} — ${done} из ${nAcc}`);
+  h+=item(debtSum(d)>0,"Остаток по ипотеке на "+d);
+  return h+`</div>`;
+}
+function monthsCard(R){
+  const mx=Math.max(...R.map(r=>r.t),1);
+  const seg=(v,c)=>v>0?`<div style="width:${v/mx*100}%;background:${c}"></div>`:"";
+  let h=`<div class="card"><div class="eyebrow">Доходы по месяцам</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">длина полосы — доля от лучшего месяца</div>`;
+  R.forEach((r,i)=>{
+    if(!r.t){h+=`<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--line)">
+      <span>${MONTHS[i]}</span><span>—</span></div>`;return;}
+    h+=`<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px">${MONTHS[i]}</span>
+        <span class="mono" style="font-size:13px;font-weight:600">${fmt(r.t)} ₽</span></div>
+      <div style="display:flex;height:9px;margin:5px 0 4px;border-radius:2px;overflow:hidden">
+        ${seg(r.p,"var(--mal)")}${seg(r.sal,"var(--blue)")}${seg(r.kat,"var(--kat)")}${seg(r.e,"var(--cop)")}</div>
+      <div class="mono" style="font-size:9.5px;color:var(--muted)">
+        ${r.p?`<span style="color:var(--mal)">●</span> пассив ${fmt(r.p)}  `:""}
+        ${r.sal?`<span style="color:var(--blue)">●</span> зарплата ${fmt(r.sal)}  `:""}
+        ${r.kat?`<span style="color:var(--kat)">●</span> Катя ${fmt(r.kat)}  `:""}
+        ${r.e?`<span style="color:var(--cop)">●</span> доп. ${fmt(r.e)}`:""}</div></div>`;});
+  return h+`</div>`;
+}
+const MORT={bank:"ВТБ",num:"V634/2007-0001239",from:"04.10.2023",
+  bal:4765913.75, acc:10654.76, rate:5.10, psk:5.32, pay:44350.67,
+  start:5571603.28, term:180, done:37, left:144, endDate:"15.08.2038",
+  paidInt:755796.73, paidBody:805689.53, totalInt:2370354.74};
+function mortCard(){
+  const m=MORT, total=m.paidBody+m.paidInt, w=m.paidBody/m.start*100;
+  const restInt=m.totalInt-m.paidInt, rest=m.bal+restInt;
+  const d=stats().now.d;
+  const cover=num((S.capital[d]||{}).a1)+num((S.capital[d]||{}).a6);
+  return `<div class="card"><div class="eyebrow">Ипотека ${m.bank}</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">договор ${m.num} от ${m.from} · ${String(m.rate).replace(".",",")}% · ПСК ${String(m.psk).replace(".",",")}%</div>
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+      <div style="width:${w}%;background:var(--mal)"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:14px">
+      <span>погашено ${w.toFixed(1).replace(".",",")}%</span><span>платёж ${m.done} из ${m.term}</span></div>
+    ${fl("Сумма кредита",fmt(m.start)+" ₽")}
+    ${fl("Внесено за "+m.done+" платежей",fmt(total)+" ₽")}
+    ${fl("· тело долга",fmt(m.paidBody)+" ₽ · "+Math.round(m.paidBody/total*100)+"%","var(--mal)")}
+    ${fl("· проценты",fmt(m.paidInt)+" ₽ · "+Math.round(m.paidInt/total*100)+"%","var(--cop)")}
+    <div style="border-top:1px solid var(--line);margin-top:8px"></div>
+    ${fl("Остаток долга",fmt(m.bal)+" ₽")}
+    ${fl("Процентов впереди",fmt(restInt)+" ₽","var(--cop)")}
+    ${fl("Осталось выплатить",fmt(rest)+" ₽")}
+    ${fl("Платёж в месяц",fmt(m.pay)+" ₽")}
+    ${fl("Последний платёж",m.endDate+" · "+m.left+" мес.")}
+    <div style="border-top:2px solid var(--ink);margin-top:10px;padding-top:9px">
+      ${fl("Накоплено на ипотечных счетах",fmt(cover)+" ₽","var(--mal)")}
+      ${fl("Покрытие долга",Math.round(cover/m.bal*100)+"%",cover>=m.bal?"var(--mal)":"var(--cop)")}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Данные из графика ВТБ от 01.09.2026. Гасить досрочно невыгодно: ипотечные счета приносят 12–16% годовых купонами против ${String(m.rate).replace(".",",")}% по кредиту.</div></div>`;
+}
+const IIS={limit:400000,rate:0.13,acc:"Сбер S207VB1 + Т-Банк 2000093965"};
+const DEADLINES=[
+  {d:"2026-12-31",t:"Довнести 100 000 ₽ на ИИС",s:"вернут ещё 13 000 ₽ · перенести на 2027 нельзя"},
+  {d:"2026-12-25",t:"Оставить ~240 000 ₽ на брокерских счетах",s:"в январе спишут НДФЛ с купонов"},
+  {d:"2027-01-15",t:"Подать декларации за 2024 и 2025",s:"к возврату 308 678 ₽ · срок не горит, но чем раньше, тем раньше деньги"},
+  {d:"2027-08-31",t:"Оферта по облигации Кокс 001Р-06",s:"купон 16,85 ₽ гарантирован только до этой даты"}
+];
+function deadlineCard(){
+  const now=new Date();
+  const L=DEADLINES.map(x=>({...x,days:Math.round((new Date(x.d)-now)/86400000)}))
+    .filter(x=>x.days>-30).sort((a,b)=>a.days-b.days);
+  if(!L.length)return "";
+  let h=`<div class="card"><div class="eyebrow">Ближайшие сроки</div>`;
+  L.forEach(x=>{
+    const c=x.days<0?"var(--muted)":x.days<45?"var(--cop)":x.days<120?"var(--gold)":"var(--muted)";
+    const lbl=x.days<0?"просрочено":x.days===0?"сегодня":`${x.days} дн.`;
+    h+=`<div style="display:flex;gap:10px;align-items:baseline;border-top:1px solid var(--line);padding:9px 0">
+      <span class="mono" style="font-size:11px;font-weight:600;color:${c};min-width:56px">${lbl}</span>
+      <div style="flex:1"><div style="font-size:12px">${x.t}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">${x.s}</div></div></div>`;});
+  return h+`</div>`;
+}
+const DED={buy:260000,int:390000,paidInt:565775.32,
+  ndfl:[[2024,246431],[2025,375569]],
+  now2024:246431, now2025:62247};
+function dedCard(){
+  const d=DED, ready=d.now2024+d.now2025;
+  return `<div class="card"><div class="eyebrow">Имущественный вычет</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">квартира по ипотеке V634/3807-0000940 · вычет ранее не использован</div>
+    ${fl("Вычет на покупку",fmt(d.buy)+" ₽")}
+    ${fl("Вычет на проценты, всего",fmt(d.int)+" ₽")}
+    ${fl("Потенциально к возврату",fmt(d.buy+d.int)+" ₽","var(--mal)")}
+    <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:4px">
+      <div style="font-size:11px;color:var(--muted);padding:4px 0">Можно заявить сейчас</div>
+      ${fl("· декларация за 2024",fmt(d.now2024)+" ₽")}
+      ${fl("· декларация за 2025",fmt(d.now2025)+" ₽")}
+      ${fl("Вернут в ближайшую подачу",fmt(ready)+" ₽","var(--mal)")}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Уплачено процентов ${fmt(d.paidInt)} ₽; лимит 3 млн будет выбран по графику. Проценты за 2026 год заявляются в 2027‑м. Вычет по ИИС идёт за 2026 год и с этими декларациями не конфликтует.</div></div>`;
+}
+function iisCard(){
+  const dep=num(S.iis&&S.iis.dep), left=Math.max(0,IIS.limit-dep);
+  const ret=Math.min(dep,IIS.limit)*IIS.rate, maxRet=IIS.limit*IIS.rate;
+  const w=Math.min(100,dep/IIS.limit*100);
+  return `<div class="card"><div class="eyebrow" style="color:${dep?"var(--ink)":"var(--cop)"}">Вычет по ИИС · 2026</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">${IIS.acc} · срок — до 31 декабря</div>
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+      <div style="width:${w}%;background:var(--mal)"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px">
+      <span>внесено ${fmt(dep)} ₽</span><span>лимит ${fmt(IIS.limit)} ₽</span></div>
+    <div class="row"><label style="flex:1;font-size:13px">Внесено на ИИС в 2026</label>
+      <input inputmode="numeric" data-iis="dep" value="${dep?fmt(dep):""}" placeholder="0"></div>
+    ${fl("Возврат НДФЛ при текущем взносе",fmt(ret)+" ₽",ret?"var(--mal)":"var(--muted)")}
+    ${fl("Если довнести "+fmt(left)+" ₽","+ "+fmt(maxRet-ret)+" ₽","var(--mal)")}
+    ${fl("Максимум за год",fmt(maxRet)+" ₽")}
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Вычет типа А: 13% от взноса, не более 400 000 ₽ в год и не больше уплаченного вами НДФЛ. Взнос должен пройти до 31 декабря — перенести на следующий год нельзя. Оба счёта в режиме ИИС‑3, лимит 400 000 ₽ считается на человека за год по всем счетам сразу. Сберовский трансформирован из ИИС 2023 года, поэтому срок владения у него истекает раньше, чем у открытого в 2026 — довносить выгоднее туда.</div></div>`;
+}
+const TAX={
+  withheld:[["Т-Банк · 5 счетов",34831],["Альфа · 3737261",4315],["Freedom",3322],["Сбер · оба счёта",0]],
+  shielded:187987+17198,   // купоны на ИИС — налог не удерживается до закрытия
+  note:"за 2025 год, списано 05.01.2026"
+};
+function taxCard(st){
+  const n=st.f.length||1, ann=st.yp*12/n;
+  const shieldAnn=TAX.shielded*12/7, taxable=Math.max(0,ann-shieldAnn);
+  const base=2400000;
+  const due=Math.min(taxable,base)*0.13+Math.max(0,taxable-base)*0.15;
+  const paid=TAX.withheld.reduce((s,x)=>s+x[1],0);
+  const left=Math.max(0,due-paid);
+  let rows="";
+  TAX.withheld.forEach(([k,v])=>{rows+=fl("· "+k,fmt(v)+" ₽",v?"var(--ink)":"var(--cop)");});
+  return `<div class="card"><div class="eyebrow">Налог с пассивного дохода</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">оценка в годовом выражении по ${n} мес.</div>
+    ${fl("Купоны и дивиденды за год",fmt(ann)+" ₽")}
+    ${fl("· из них на ИИС, налог отложен","− "+fmt(shieldAnn)+" ₽","var(--mal)")}
+    ${fl("Облагаемый доход",fmt(taxable)+" ₽")}
+    ${fl("Налог к уплате за год","≈ "+fmt(due)+" ₽","var(--cop)")}
+    <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:4px">
+      <div style="font-size:11px;color:var(--muted);padding:4px 0">Уже удержано брокерами</div>
+      ${rows}
+      ${fl("Всего удержано",fmt(paid)+" ₽","var(--mal)")}</div>
+    <div style="border-top:2px solid var(--ink);margin-top:10px;padding-top:9px">
+      ${fl("Спишется в январе 2027","≈ "+fmt(left)+" ₽","var(--cop)")}
+      ${fl("Пассивный доход после налога",fmt(ann-due)+" ₽ · "+fmt((ann-due)/12)+" ₽/мес","var(--mal)")}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Сбер за 2026 год пока не удержал ничего — он списывает налог в январе или при выводе денег. Удержание по Альфе — ${TAX.note}. Держите на счетах остаток к началу года, иначе брокер удержит из первых поступивших купонов. Расчёт приблизительный: реальная база зависит от сделок с прибылью и убытком.</div></div>`;
+}
+const SPREAD={bal:4765913.75,rate:0.051,flow:894970,fact:32363};
+function spreadCard(){
+  const s=SPREAD, cost=s.bal*s.rate;
+  const byFlow=s.flow-cost, byFact=s.fact-cost;
+  return `<div class="card"><div class="eyebrow">Ипотека против портфеля</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">счета «Ипотека 2.8» и «Ипотека 1.6» против кредита под 5,1%</div>
+    ${fl("Проценты по ипотеке за год","− "+fmt(cost)+" ₽","var(--cop)")}
+    ${fl("Купоны этих счетов за год","+ "+fmt(s.flow)+" ₽","var(--mal)")}
+    ${fl("Спред по денежному потоку",(byFlow>=0?"+ ":"− ")+fmt(Math.abs(byFlow))+" ₽",byFlow>=0?"var(--mal)":"var(--cop)")}
+    <div style="border-top:1px solid var(--line);margin-top:8px"></div>
+    ${fl("Фактический результат счетов","+ "+fmt(s.fact)+" ₽","var(--muted)")}
+    ${fl("Спред по факту, с переоценкой",(byFact>=0?"+ ":"− ")+fmt(Math.abs(byFact))+" ₽",byFact>=0?"var(--mal)":"var(--cop)")}
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">По купонному потоку не гасить ипотеку выгодно на ${fmt(byFlow)} ₽ в год. Но если считать с переоценкой бумаг, за 2026 год эти счета отработали хуже, чем стоит кредит. Первая строка — что портфель приносит деньгами, вторая — что он приносит на самом деле.</div></div>`;
+}
+const PASSIVE_SRC=[
+  ["Т-Банк · 5 счетов",828197,"купоны и дивиденды"],
+  ["Сбер · 2 счёта",533485,"купоны и дивиденды"],
+  ["Альфа · 3737261",266093,"купоны, дивиденды, ЗПИФ"],
+  ["Freedom · брокерский",21707,"дивиденды США и ОАЭ"],
+  ["Freedom · вклад",8565,"репо FRHC"]
+];
+const PASSIVE_KIND=[["Купоны по облигациям",84659],["Дивиденды по акциям",37281],["Выплаты ЗПИФ",144152]];
+function passiveCard(st){
+  const tot=PASSIVE_SRC.reduce((s,x)=>s+x[1],0);
+  const cols=["var(--mal)","var(--blue)","var(--cop)","var(--kat)","var(--gold)"];
+  let bar="",list="";
+  PASSIVE_SRC.forEach(([n,v,d],i)=>{
+    bar+=`<div style="width:${v/tot*100}%;background:${cols[i]}"></div>`;
+    list+=`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0">
+      <span style="display:flex;align-items:center;gap:7px;font-size:12px"><i class="sw" style="background:${cols[i]}"></i>${n}
+      <span style="font-size:9px;color:var(--muted)">${d}</span></span>
+      <span class="mono" style="font-size:12px">${fmt(v)} · ${Math.round(v/tot*100)}%</span></div>`;});
+  const kt=PASSIVE_KIND.reduce((s,x)=>s+x[1],0);
+  let kinds="";
+  PASSIVE_KIND.forEach(([n,v])=>{kinds+=fl("· "+n,fmt(v)+" ₽ · "+Math.round(v/kt*100)+"%");});
+  return `<div class="card"><div class="eyebrow">Структура пассивного дохода</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">по разобранным счетам · янв–авг 2026</div>
+    <div style="display:flex;height:10px;margin-bottom:10px;border-radius:2px;overflow:hidden">${bar}</div>
+    ${list}
+    <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:6px">
+      <div style="font-size:11px;color:var(--muted);padding-bottom:2px">По типу выплат — там, где отчёт это разделяет (Альфа)</div>
+      ${kinds}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Итого ${fmt(tot)} ₽. Разделить купоны и дивиденды по всем счетам нельзя: в отчётах Т‑Банка и Сбера они идут одной строкой «выплата доходов» и «корпоративные действия». По Альфе разделение есть, и там больше половины потока дают рентные ЗПИФ, а не облигации.</div></div>`;
+}
+const OPS=[["dep","Пополнение извне","var(--mal)"],["wdr","Вывод на карту","var(--cop)"],
+  ["mov","Перевод между счетами","var(--blue)"],["exp","Трата (ремонт и т.п.)","var(--gold)"],
+  ["one","Разовый доход","var(--kat)"]];
+function opLabel(k){const o=OPS.find(x=>x[0]===k);return o?o[1]:k}
+function opColor(k){const o=OPS.find(x=>x[0]===k);return o?o[2]:"var(--muted)"}
+function accName(id){const a=ACCOUNTS.find(x=>x[0]===id);return a?a[2]:"—"}
+function brokerCard(){
+  const st=stats(), B=BROKER, a=B.y["2024"], b=B.y["2025"];
+  const d26=st.f.reduce((s,r)=>s+num((S.income[r.m]||{}).div),0);
+  const c26=st.f.length;
+  const cell=(v,c)=>`<td style="text-align:right;padding:4px 0 4px 8px;font-size:11px;color:${c||"var(--ink)"}">${v===null?"—":fmt(v)}</td>`;
+  const row=(l,x,y,z,c)=>`<tr><td style="padding:4px 0;font-size:11px;color:var(--muted);font-family:'Inter',system-ui,sans-serif">${l}</td>${cell(x,c)}${cell(y,c)}${cell(z,c)}</tr>`;
+  let h=`<div class="card"><div class="eyebrow">Пассивный доход по отчётам брокеров</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px;line-height:1.45">Только полученные деньги: купоны, дивиденды и выплаты фондов. Погашения облигаций и проценты по вкладам сюда не входят.</div>
+    <table class="mono" style="width:100%">
+      <tr><td></td>
+        <td style="text-align:right;padding-bottom:6px;font-size:10px;color:var(--muted)">2024</td>
+        <td style="text-align:right;padding-bottom:6px;font-size:10px;color:var(--muted)">2025</td>
+        <td style="text-align:right;padding-bottom:6px;font-size:10px;color:var(--muted)">2026·${c26}м</td></tr>
+      <tr style="border-top:1px solid var(--line)"><td style="padding:6px 0;font-size:12px;font-weight:600;font-family:'Inter',system-ui,sans-serif">Доход</td>
+        <td style="text-align:right;padding:6px 0 6px 8px;font-size:12px;font-weight:600">${fmt(a.inc)}</td>
+        <td style="text-align:right;padding:6px 0 6px 8px;font-size:12px;font-weight:600">${fmt(b.inc)}</td>
+        <td style="text-align:right;padding:6px 0 6px 8px;font-size:12px;font-weight:600">${fmt(d26)}</td></tr>
+      ${row("Купоны",a.cou,b.cou,null,"var(--mal)")}
+      ${row("Дивиденды",a.div,b.div,null,"var(--cop)")}
+      ${row("Выплаты ЗПИФов",a.fnd,b.fnd,null,"var(--gold)")}
+      ${row("Налог удержан",a.tax,b.tax,null,"var(--muted)")}
+      ${row("Комиссии",a.fee,b.fee,null,"var(--muted)")}
+      ${row("Выплат за год",a.pay,b.pay,null,"var(--muted)")}
+    </table>`;
+  const mx=Math.max(a.inc,b.inc,d26,1), seg=(v,c)=>v?`<div style="width:${v/mx*100}%;background:${c}"></div>`:"";
+  h+=`<div style="margin-top:14px">`;
+  [["2024",a.cou,a.div,a.fnd,a.inc],["2025",b.cou,b.div,b.fnd,b.inc],["2026",d26,0,0,d26]].forEach(([y,c,dv,f,t])=>{
+    h+=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">
+      <span style="font-size:11px">${y}${y==="2026"?" · "+c26+" мес.":""}</span>
+      <span class="mono" style="font-size:11px;color:var(--muted)">${y==="2026"?"состав не разделён":Math.round(c/t*100)+" % купоны"}</span></div>
+      <div style="display:flex;height:9px;margin-top:4px;border-radius:2px;overflow:hidden;background:#fff">
+        ${y==="2026"?seg(t,"var(--kat)"):seg(c,"var(--mal)")+seg(dv,"var(--cop)")+seg(f,"var(--gold)")}</div>`;});
+  h+=`</div>
+    <div class="lg" style="margin-top:10px">
+      <span><i class="sw" style="background:var(--mal)"></i>купоны</span>
+      <span><i class="sw" style="background:var(--cop)"></i>дивиденды</span>
+      <span><i class="sw" style="background:var(--gold)"></i>ЗПИФы</span>
+      <span><i class="sw" style="background:var(--kat)"></i>из дашборда</span></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:12px;line-height:1.45">${B.src}. За 2024 и 2025 отчёты закрывают весь капитал в ценных бумагах. За 2026 отчётов почти нет, поэтому колонка считается из вкладки «Доходы» — строка «Дивиденды» за ${c26} мес.</div></div>`;
+
+  h+=`<div class="card"><div class="eyebrow">Кто принёс доход в 2025-м</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">По брокерским отчётам, ₽ за год</div>`;
+  const tm=Math.max(...B.top25.map(t=>t[2]));
+  B.top25.forEach(([code,name,v])=>{
+    h+=`<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11.5px"><b class="mono" style="font-size:10px;color:var(--muted)">${code}</b> ${name}</span>
+        <span class="mono" style="font-size:11.5px;font-weight:600">${fmt(v)}</span></div>
+      <div style="height:6px;margin-top:3px;border-radius:2px;background:#fff;overflow:hidden">
+        <div style="width:${v/tm*100}%;height:100%;background:var(--mal)"></div></div></div>`;});
+  h+=`<div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.45">Freedom пересчитан из долларов по среднегодовому курсу ЦБ 85,35. Счета 2010881365 и 2154267306 в трекере не заведены, их 63 736 ₽ в список не попали.</div></div>`;
+  return h;
+}
+function yearsTab(){
+  const st=stats();
+  S.years=S.years||{};
+  const Y=Object.keys(S.years).concat(["2026"]).filter((v,i,a)=>a.indexOf(v)===i).sort();
+  const cur={inc:st.ytd,pas:st.yp,cap:st.now.t,mon:st.f.length};
+  const val=y=>y==="2026"?{inc:cur.inc,tax:0,cap:cur.cap,pas:cur.pas}
+    :{inc:num((S.years[y]||{}).inc),tax:num((S.years[y]||{}).tax),cap:num((S.years[y]||{}).cap),pas:num((S.years[y]||{}).pas)};
+  const mx=Math.max(...Y.map(y=>val(y).inc),1);
+  let h=`<div class="card"><div class="eyebrow">Доход по годам</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">2022–2025 — по справкам ФНС · 2026 — из дашборда за ${cur.mon} мес.</div>`;
+  Y.forEach(y=>{const v=val(y);
+    h+=`<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;font-weight:${y==="2026"?600:400}">${y}${y==="2026"?" · неполный":""}</span>
+        <span class="mono" style="font-size:13px;font-weight:600">${fmt(v.inc)} ₽</span></div>
+      <div style="display:flex;height:9px;margin:5px 0 4px;border-radius:2px;overflow:hidden;background:#fff">
+        <div style="width:${v.pas?v.pas/mx*100:0}%;background:var(--mal)"></div>
+        <div style="width:${Math.max(0,(v.inc-(v.pas||0))/mx*100)}%;background:var(--blue)"></div></div>
+      <div class="mono" style="font-size:9.5px;color:var(--muted)">
+        ${v.pas?`<span style="color:var(--mal)">●</span> пассивный ${fmt(v.pas)}  `:""}
+        ${v.tax?`НДФЛ ${fmt(v.tax)}  `:""}${v.cap?`капитал ${fmt(v.cap)}`:""}</div></div>`;});
+  h+=`<div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4">Зелёным — пассивный доход, синим — остальное. За 2024 и 2025 пассивный доход посчитан по брокерским отчётам, за 2022–2023 его нет: в справках ФНС он идёт общей суммой.</div></div>`;
+  h+=brokerCard();
+  h+=`<div class="card"><div class="eyebrow">Заполнить годы</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">2026 считается сам, править не нужно</div>`;
+  Y.filter(y=>y!=="2026").forEach(y=>{
+    const v=S.years[y]||{};
+    let rows="";
+    [["inc","Доход"],["tax","НДФЛ"],["pas","Пассивный доход"],["cap","Капитал на 31.12"]].forEach(([k,l])=>{
+      rows+=`<div class="row"><label style="flex:1;font-size:12px">${l}</label>
+        <input inputmode="numeric" data-yr="${y}" data-fld="${k}" style="width:130px" value="${v[k]?fmt(v[k]):""}" placeholder="0"></div>`;});
+    h+=`<div style="border-top:1px solid var(--line);padding:9px 0">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">${y}</div>${rows}</div>`;});
+  h+=`<button id="yr-add" style="width:100%;padding:10px;margin-top:10px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--muted);font-size:12px">Добавить год</button></div>`;
+  const prev=Y.filter(y=>y!=="2026").slice(-1)[0];
+  if(prev){const p=val(prev), run=cur.mon?cur.inc*12/cur.mon:0;
+    h+=`<div class="card"><div class="eyebrow">2026 против ${prev}</div>
+      ${fl(prev,fmt(p.inc)+" ₽")}
+      ${fl("2026 за "+cur.mon+" мес.",fmt(cur.inc)+" ₽")}
+      ${fl("2026 в годовом темпе",fmt(run)+" ₽",run>=p.inc?"var(--mal)":"var(--cop)")}
+      ${fl("Изменение",(run>=p.inc?"+":"−")+Math.round(Math.abs(run/(p.inc||1)-1)*100)+"%",run>=p.inc?"var(--mal)":"var(--cop)")}
+      <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Годовой темп — доход за ${cur.mon} мес., пересчитанный на 12. Разовые поступления вроде майских 800 000 ₽ его завышают.</div></div>`;}
+  return h;
+}
+function journalTab(){
+  const J=(S.ops||[]).slice().sort((a,b)=>b.d.localeCompare(a.d));
+  const opts=ACCOUNTS.map(a=>`<option value="${a[0]}">${esc(a[2])}</option>`).join("");
+  const sel='width:170px;padding:8px;border:1px solid var(--line);border-radius:3px;background:#fff;font-size:12px;font-family:inherit;color:var(--ink)';
+  let h=`<div class="card"><div class="eyebrow">Новая операция</div>
+    <div style="margin-top:12px">
+      <div class="row"><label style="flex:1;font-size:13px">Дата</label>
+        <input id="j-date" type="date" style="width:160px;text-align:left" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="row"><label style="flex:1;font-size:13px">Тип</label>
+        <select id="j-kind" style="${sel}">${OPS.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>
+      <div class="row"><label style="flex:1;font-size:13px">Счёт</label>
+        <select id="j-acc" style="${sel}">${opts}</select></div>
+      <div class="row" id="j-torow" style="display:none"><label style="flex:1;font-size:13px">Куда</label>
+        <select id="j-to" style="${sel}">${opts}</select></div>
+      <div class="row"><label style="flex:1;font-size:13px">Сумма</label>
+        <input id="j-sum" inputmode="numeric" placeholder="0"></div>
+      <div class="row"><label style="flex:1;font-size:13px">Комментарий</label>
+        <input id="j-note" style="width:170px;text-align:left" placeholder="необязательно"></div>
+      <button id="j-add" style="width:100%;padding:11px;margin-top:6px;background:var(--mal);border:none;border-radius:5px;color:#fff;font-size:13px">Добавить</button>
+    </div></div>`;
+  const yr={}; J.forEach(o=>{yr[o.k]=(yr[o.k]||0)+num(o.s)});
+  if(J.length){
+    h+=`<div class="card"><div class="eyebrow">Итоги по журналу · ${J.length} операций</div>`;
+    OPS.forEach(([k,n,c])=>{if(yr[k])h+=fl(n,fmt(yr[k])+" ₽",c);});
+    h+=`<div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Переводы между счетами не меняют капитал, но нужны для расчёта доходности: без них перемещение денег выглядит как заработок.</div></div>`;
+  }
+  h+=`<div class="card"><div class="eyebrow">Операции</div>`;
+  if(!J.length)h+=`<div style="font-size:12px;color:var(--muted);margin-top:10px">Пока пусто. Записывайте пополнения, выводы и переводы — тогда доходность будет считаться без брокерских отчётов.</div>`;
+  J.forEach(o=>{
+    h+=`<div style="display:flex;gap:10px;align-items:baseline;border-top:1px solid var(--line);padding:8px 0">
+      <span class="mono" style="font-size:10px;color:var(--muted);min-width:62px">${o.d.split("-").reverse().join(".")}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px"><i class="sw" style="background:${opColor(o.k)}"></i> ${opLabel(o.k)}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(accName(o.a))}${o.t?" → "+esc(accName(o.t)):""}${o.n?" · "+esc(o.n):""}</div></div>
+      <span class="mono" style="font-size:12px;font-weight:600">${fmt(o.s)}</span>
+      <button data-del="${o.id}" style="background:none;border:none;color:var(--muted);font-size:16px;padding:0 3px;line-height:1">×</button></div>`;});
+  return h+`</div>`;
+}
+function capitalCard(st){
+  const rc=renoCum(), alt=st.wd.map(x=>x.t+(rc[x.d]||0));
+  const gap=alt[alt.length-1]-st.now.t;
+  return `<div class="card"><div class="eyebrow">Капитал</div>
+    <div style="margin-top:10px">${lineChart(st.wd,alt)}</div>
+    <div style="font-size:10px;color:var(--muted);text-align:right">млн ₽</div>
+    <div class="lg" style="flex-direction:column;gap:4px;align-items:flex-start;margin-top:6px">
+      <span><i class="sw" style="background:var(--mal)"></i>фактический капитал — <b class="mono" style="color:var(--ink)">${fmt(st.now.t)} ₽</b></span>
+      <span><i class="sw" style="background:var(--muted)"></i>без трат на ремонт — <b class="mono" style="color:var(--ink)">${fmt(alt[alt.length-1])} ₽</b></span></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4">Пунктир показывает, каким был бы капитал, если бы ${fmt(gap)} ₽ не ушли на ремонт. Это органический тренд портфеля без разовой траты.</div>
+    ${structure(st.now.d)}</div>`;
+}
+function curCard(d){
+  const by={},tot=capSum(d)||1;
+  ACCOUNTS.forEach(a=>{const v=num((S.capital[d]||{})[a[0]]); if(!v)return;
+    const c=CURRENCY[a[0]]||"RUB"; by[c]=(by[c]||0)+v;});
+  const L=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  const fxShare=L.filter(x=>x[0]!=="RUB").reduce((s,x)=>s+x[1],0)/tot*100;
+  let bar="",list="";
+  L.forEach(([c,v])=>{
+    bar+=`<div style="width:${v/tot*100}%;background:${CUR_COLOR[c]||"var(--muted)"}"></div>`;
+    list+=`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:var(--muted)">
+      <span style="display:flex;align-items:center;gap:6px"><i class="sw" style="background:${CUR_COLOR[c]||"var(--muted)"}"></i>${c}</span>
+      <span class="mono" style="color:var(--ink)">${fmt(v)} · ${Math.round(v/tot*100)}%</span></div>`;});
+  return `<div class="card"><div class="eyebrow">Валютная структура</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">на ${d}</div>
+    <div style="display:flex;height:10px;margin-bottom:10px">${bar}</div>${list}
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">В валюте ${Math.round(fxShare)}% портфеля. Именно эта часть дала весь положительный результат года — за счёт курса, а не роста активов. Валюта определяется по счёту целиком; юаневый остаток на ИИС Сбера отнесён к рублям.</div></div>`;
+}
+function goalsTab(){
+  let h=`<div class="card"><div class="eyebrow">Цели по счетам</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">впишите целевую сумму — появится прогресс</div>`;
+  const d=stats().now.d;
+  ACCOUNTS.forEach(a=>{
+    const v=num((S.capital[d]||{})[a[0]]); if(!v)return;
+    const g=num(S.goals[a[0]]),pc=g?Math.min(100,v/g*100):0;
+    h+=`<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a[2])}</div>
+          <div style="font-size:10px;color:var(--muted)">${esc(a[1])} · ${fmt(v)} ₽</div></div>
+        <input inputmode="numeric" data-goal="${a[0]}" style="width:118px" value="${S.goals[a[0]]?fmt(S.goals[a[0]]):""}" placeholder="цель"></div>
+      <div style="height:8px;background:#fff;border:1px solid var(--line);margin-top:7px;display:${g?"block":"none"}">
+        <div id="gb-${a[0]}" style="height:100%;width:${pc}%;background:${pc>=100?"var(--mal)":"var(--blue)"}"></div></div>
+      <div id="gt-${a[0]}" style="font-size:10px;color:var(--muted);margin-top:3px" class="mono">${g?`${Math.round(pc)}% · осталось ${fmt(Math.max(0,g-v))} ₽`:""}</div></div>`;});
+  return h+`</div>`;
+}
+function pnlCard(){
+  const L=Object.keys(VERIFIED).map(k=>{const x=VERIFIED[k];
+    const res=x.v1-x.v0-x.dep;
+    return{n:x.n,inc:x.inc,res,rev:res-x.inc};});
+  const mx=Math.max(...L.map(x=>Math.max(x.inc,Math.abs(x.rev))),1);
+  L.sort((a,b)=>b.res-a.res);
+  const tI=L.reduce((s,x)=>s+x.inc,0),tR=L.reduce((s,x)=>s+x.rev,0);
+  const bar=(inc,rev)=>`<div style="display:flex;align-items:center;height:9px;margin:5px 0">
+    <div style="flex:1;display:flex;justify-content:flex-end">
+      <div style="width:${Math.abs(Math.min(rev,0))/mx*100}%;height:9px;background:var(--cop)"></div></div>
+    <div style="width:1px;height:13px;background:var(--ink)"></div>
+    <div style="flex:1;display:flex">
+      <div style="width:${Math.max(inc,0)/mx*100}%;height:9px;background:var(--mal)"></div>
+      <div style="width:${Math.max(rev,0)/mx*100}%;height:9px;background:var(--kat)"></div></div></div>`;
+  let h=`<div class="card"><div class="eyebrow">Поток против переоценки</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">из чего сложился результат каждого счёта · янв–июль 2026</div>`;
+  L.forEach(x=>{
+    h+=`<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px">${x.n}</span>
+        <span class="mono" style="font-size:12px;font-weight:600;color:${x.res>=0?"var(--mal)":"var(--cop)"}">${x.res>=0?"+":"−"}${fmt(Math.abs(x.res))}</span></div>
+      ${bar(x.inc,x.rev)}
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)" class="mono">
+        <span>переоценка ${x.rev>=0?"+":"−"}${fmt(Math.abs(x.rev))}</span>
+        <span>поток ${x.inc?"+"+fmt(x.inc):"—"}</span></div></div>`;});
+  h+=`<div style="border-top:2px solid var(--ink);padding-top:10px">
+    ${fl("Купоны и дивиденды","+ "+fmt(tI)+" ₽","var(--mal)")}
+    ${fl("Переоценка бумаг",(tR>=0?"+ ":"− ")+fmt(Math.abs(tR))+" ₽","var(--cop)")}
+    ${fl("Итого результат",(tI+tR>=0?"+ ":"− ")+fmt(Math.abs(tI+tR))+" ₽")}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Переоценка = результат минус полученный доход. Дивиденды Freedom в долларах сюда не вошли — курс пересчёта неизвестен, поэтому весь его плюс отнесён к переоценке.</div></div>`;
+  return h;
+}
+function retCard(){
+  const L=Object.keys(VERIFIED).map(k=>({k,...VERIFIED[k]})).sort((a,b)=>b.r-a.r);
+  const tv0=L.reduce((s,x)=>s+x.v0,0),tv1=L.reduce((s,x)=>s+x.v1,0);
+  const tdep=L.reduce((s,x)=>s+x.dep,0),tinc=L.reduce((s,x)=>s+x.inc,0);
+  const tr=(tv1-tv0-tdep)/tv0*100;
+  let h=`<div class="card"><div class="eyebrow">Доходность по счетам</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 10px">янв–июль 2026, по данным брокерских отчётов</div>
+    <table class="mono" style="font-size:11px">`;
+  L.forEach(x=>{const c=x.r>0?"var(--mal)":"var(--cop)";
+    h+=`<tr style="border-top:1px solid var(--line)">
+      <td style="padding:6px 0;font-family:'Inter',system-ui,sans-serif">
+        <div style="font-size:12px">${x.n}</div>
+        <div style="font-size:9px;color:var(--muted)">купоны ${fmt(x.inc)} ₽${x.dep?" · внесено "+fmt(x.dep):""}</div></td>
+      <td style="text-align:right;font-size:10px;color:var(--muted);white-space:nowrap">${fmt(x.v0/1000)}→${fmt(x.v1/1000)}</td>
+      <td style="text-align:right;color:${c};font-weight:600;white-space:nowrap">${x.r>0?"+":""}${String(x.r).replace(".",",")}%</td></tr>`});
+  h+=`<tr style="border-top:2px solid var(--ink)">
+    <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Всего<div style="font-size:9px;color:var(--muted);font-weight:400">купоны ${fmt(tinc)} ₽</div></td>
+    <td style="text-align:right;font-size:10px;color:var(--muted)">${fmt(tv0/1000)}→${fmt(tv1/1000)}</td>
+    <td style="text-align:right;font-weight:700;color:${tr>0?"var(--mal)":"var(--cop)"}">${tr>0?"+":""}${tr.toFixed(1).replace(".",",")}%</td></tr></table>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Тыс. ₽. Доходность по Модифицированному Дитцу: изменение стоимости за вычетом пополнений и выводов. Купоны и дивиденды реинвестированы и уже учтены в результате. Не хватает данных: Мой Пассив 2221205099 — ${UNVERIFIED.a4}; ОФЗ 2000093965 — ${UNVERIFIED.a23}.</div></div>`;
+  return h;
+}
+
+function split(st){
+  const tot=st.ysal+st.ykat||1,n=st.f.length||1;
+  const bar=`<div style="display:flex;height:10px;margin-bottom:12px">
+    <div style="width:${st.ysal/tot*100}%;background:var(--blue)"></div>
+    <div style="width:${st.ykat/tot*100}%;background:var(--kat)"></div></div>`;
+  const line=(nm,v,c)=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)">
+    <span style="display:flex;align-items:center;gap:6px;font-size:13px"><i class="sw" style="background:${c}"></i>${nm}</span>
+    <span style="text-align:right"><span class="mono" style="font-weight:600">${fmt(v)} ₽</span>
+    <span class="mono" style="font-size:10px;color:var(--muted);display:block">${fmt(v/n)} / мес · ${Math.round(v/tot*100)}%</span></span></div>`;
+  return bar+line("Моя зарплата",st.ysal,"var(--blue)")+line("Катя ПИ",st.ykat,"var(--kat)")+
+    `<div style="display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:4px;padding-top:7px;font-size:13px;font-weight:600">
+      <span>Вместе</span><span class="mono">${fmt(st.ysal+st.ykat)} ₽</span></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">Доля в общем доходе — ${Math.round((st.ysal+st.ykat)/(st.ytd||1)*100)}%</div>`;
+}
+function kpi(l,v,s,c){return`<div class="kpi"><div class="eyebrow" style="font-size:9px">${l}</div>
+  <div class="mono" style="font-size:19px;font-weight:600;margin:7px 0 2px;letter-spacing:-.02em;color:${c||"var(--ink)"}">${v}</div>
+  <div style="font-size:10px;color:var(--muted)">${s}</div></div>`}
+function dl(l,id,v,c){return`<div style="display:flex;justify-content:space-between;padding:3px 0;color:${c||"inherit"}">
+  <span style="font-family:'Inter',system-ui,sans-serif;font-size:12px;color:var(--muted)">${l}</span><span id="${id}">${fmt(v)}</span></div>`}
+
+function bind(){
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{V.tab=b.dataset.tab;render()});
+  document.querySelectorAll("button[data-m]").forEach(b=>b.onclick=()=>{V.month=b.dataset.m;render()});
+  document.querySelectorAll("tr[data-m]").forEach(b=>b.onclick=()=>{V.month=b.dataset.m;render()});
+  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{V.date=b.dataset.d;render()});
+  const g=document.getElementById("goal");
+  if(g)g.onchange=()=>{S.goal=num(g.value);save();render()};
+  document.querySelectorAll("input[data-yr]").forEach(i=>{
+    i.onfocus=()=>{i.value=String(num(i.value)||"")};
+    i.oninput=()=>{const y=i.dataset.yr;S.years[y]=S.years[y]||{};
+      S.years[y][i.dataset.fld]=num(i.value);save()};
+    i.onblur=()=>{i.value=i.value===""?"":fmt(num(i.value));render()};
+  });
+  const ya=document.getElementById("yr-add");
+  if(ya)ya.onclick=()=>{const ys=Object.keys(S.years).map(Number).filter(x=>x);
+    const n=String((ys.length?Math.min(...ys):2026)-1); S.years[n]={}; save(); render();};
+  const ja=document.getElementById("j-add"), jk=document.getElementById("j-kind");
+  const syncTo=()=>{const r=document.getElementById("j-torow");
+    if(r)r.style.display=(jk&&jk.value==="mov")?"flex":"none";};
+  if(jk){jk.onchange=syncTo;syncTo();}
+  if(ja)ja.onclick=()=>{
+    const sum=num(document.getElementById("j-sum").value); if(!sum)return;
+    S.ops=S.ops||[];
+    S.ops.push({id:String(Date.now()),d:document.getElementById("j-date").value,
+      k:jk.value,a:document.getElementById("j-acc").value,
+      t:jk.value==="mov"?document.getElementById("j-to").value:"",
+      s:sum,n:document.getElementById("j-note").value||""});
+    save();render();};
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    S.ops=(S.ops||[]).filter(o=>o.id!==b.dataset.del);save();render();});
+  const cpv=document.getElementById("copyprev");
+  if(cpv)cpv.onclick=()=>{
+    const prev=DATES[DATES.indexOf(V.date)-1]; if(!prev)return;
+    S.capital[V.date]=S.capital[V.date]||{};
+    ACCOUNTS.forEach(a=>{const v=(S.capital[prev]||{})[a[0]];
+      if(v!==undefined&&S.capital[V.date][a[0]]===undefined)S.capital[V.date][a[0]]=v;});
+    const pd=S.debts[prev]; if(pd&&!S.debts[V.date])S.debts[V.date]=Object.assign({},pd);
+    save();render();};
+  const ex=document.getElementById("exp");
+  if(ex)ex.onclick=()=>{const w=document.getElementById("expwrap");
+    const open=w.style.display==="none";w.style.display=open?"block":"none";
+    if(open)document.getElementById("expbox").value=JSON.stringify(Object.assign({},S,{patch:PATCH_V}));
+    ex.textContent=open?"Скрыть":"Выгрузить / загрузить данные"};
+  const pr=document.getElementById("prn");
+  if(pr)pr.onclick=()=>window.print();
+  const cp=document.getElementById("cpy");
+  if(cp)cp.onclick=async()=>{try{await navigator.clipboard.writeText(document.getElementById("expbox").value);
+    cp.textContent="Скопировано";setTimeout(()=>cp.textContent="Скопировать",1500);}catch(e){cp.textContent="Не вышло — выделите вручную";}};
+  const im=document.getElementById("imp");
+  if(im)im.onclick=()=>{
+    if(!applyImport(document.getElementById("expbox").value)) impErr("Не похоже на выгрузку — проверьте текст.");};
+
+  const dl=document.getElementById("dl");
+  if(dl)dl.onclick=()=>{
+    const name="uchet-2026-"+new Date().toISOString().slice(0,10)+".json";
+    const blob=new Blob([JSON.stringify(Object.assign({},S,{patch:PATCH_V}),null,1)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download=name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    dl.textContent="Сохранено: "+name; setTimeout(()=>dl.textContent="Скачать файл",2500);};
+
+  const ul=document.getElementById("ul"), ulinp=document.getElementById("ulinp");
+  if(ul&&ulinp){
+    ul.onclick=()=>ulinp.click();
+    ulinp.onchange=()=>{const f=ulinp.files&&ulinp.files[0]; if(!f)return;
+      const r=new FileReader();
+      r.onload=()=>{if(!applyImport(r.result))impErr("Файл не читается как выгрузка учёта.");};
+      r.onerror=()=>impErr("Не удалось прочитать файл.");
+      r.readAsText(f); ulinp.value="";};
+  }
+
+  document.querySelectorAll("input[data-f]").forEach(i=>{
+    i.onfocus=()=>{i.value=String(num(i.value)||"")};
+    i.oninput=()=>{S.income[V.month]=S.income[V.month]||{};
+      S.income[V.month][i.dataset.f]=num(i.value);save();updIncome()};
+    i.onblur=()=>{i.value=i.value===""?"":fmt(num(i.value))};
+  });
+  document.querySelectorAll("input[data-iis]").forEach(i=>{
+    i.onfocus=()=>{i.value=String(num(i.value)||"")};
+    i.oninput=()=>{S.iis=S.iis||{}; S.iis.dep=num(i.value); save()};
+    i.onblur=()=>{i.value=i.value===""?"":fmt(num(i.value)); render()};
+  });
+  document.querySelectorAll("input[data-debt]").forEach(i=>{
+    i.onfocus=()=>{i.value=String(num(i.value)||"")};
+    i.oninput=()=>{S.debts[V.date]=S.debts[V.date]||{};
+      S.debts[V.date][i.dataset.debt]=num(i.value);save();updCap()};
+    i.onblur=()=>{i.value=i.value===""?"":fmt(num(i.value))};
+  });
+  document.querySelectorAll("input[data-goal]").forEach(i=>{
+    i.onfocus=()=>{i.value=String(num(i.value)||"")};
+    i.oninput=()=>{const v=num(i.value);
+      if(v)S.goals[i.dataset.goal]=v; else delete S.goals[i.dataset.goal];
+      save();updGoal(i.dataset.goal)};
+    i.onblur=()=>{i.value=i.value===""?"":fmt(num(i.value));render()};
+  });
+  document.querySelectorAll("input[data-acc]").forEach(i=>{
+    i.onfocus=()=>{i.value=String(num(i.value)||"")};
+    i.oninput=()=>{S.capital[V.date]=S.capital[V.date]||{};
+      S.capital[V.date][i.dataset.acc]=num(i.value);save();updCap()};
+    i.onblur=()=>{i.value=i.value===""?"":fmt(num(i.value))};
+  });
+}
+function updIncome(){const r=mrow(V.month);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set("d-p",fmt(r.p));set("d-a",fmt(r.a));set("d-e",fmt(r.e));set("d-t",fmt(r.t)+" ₽");
+  const o=S.income[V.month]||{},ex=num(o.exp)+num(o.reno);set("d-s",ex?fmt(r.t-ex)+" ₽":"—");
+  const tr=document.querySelector(`tr[data-m="${V.month}"]`);
+  if(tr){tr.children[1].textContent=r.p?fmt(r.p):"";tr.children[2].textContent=r.t?fmt(r.t):"—"}}
+function updGoal(id){
+  const d=stats().now.d,v=num((S.capital[d]||{})[id]),g=num(S.goals[id]);
+  const bar=document.getElementById("gb-"+id),txt=document.getElementById("gt-"+id);
+  if(!bar||!txt)return;
+  const pc=g?Math.min(100,v/g*100):0;
+  bar.style.width=pc+"%"; bar.style.background=pc>=100?"var(--mal)":"var(--blue)";
+  bar.parentNode.style.display=g?"block":"none";
+  txt.textContent=g?`${Math.round(pc)}% · осталось ${fmt(Math.max(0,g-v))} ₽`:"";
+}
+function updCap(){const e=document.getElementById("c-tot");if(e)e.textContent=fmt(capSum(V.date))+" ₽";
+  const ds=debtSum(V.date);
+  const dt=document.getElementById("d-tot");if(dt)dt.textContent=ds?"− "+fmt(ds):"—";
+  const nt=document.getElementById("net-tot");if(nt)nt.textContent=fmt(capSum(V.date)-ds)+" ₽";
+  GROUPS.forEach((g,i)=>{const el=document.getElementById("g-"+i);if(!el)return;
+    el.textContent=fmt(ACCOUNTS.filter(a=>a[3]===g).reduce((s,a)=>s+num((S.capital[V.date]||{})[a[0]]),0))})}
+
+load().then(render);
+</script>
+
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
