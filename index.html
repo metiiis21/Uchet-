@@ -50,6 +50,10 @@
   .lg{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:10px;color:var(--muted)}
   .lg span{display:flex;align-items:center;gap:5px}
   .sw{width:8px;height:8px;border-radius:1px;display:inline-block}
+  .card>.eyebrow:first-child{cursor:pointer;user-select:none;position:relative;padding-right:16px}
+  .card>.eyebrow:first-child::after{content:"▾";position:absolute;right:0;top:0;color:var(--muted)}
+  .card.collapsed>.eyebrow:first-child::after{content:"▸"}
+  .card.collapsed>*:not(:first-child){display:none}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   @media print{
     body{background:#fff;padding:0;font-size:11px}
@@ -1060,7 +1064,28 @@ function kpi(l,v,s,c){return`<div class="kpi"><div class="eyebrow" style="font-s
 function dl(l,id,v,c){return`<div style="display:flex;justify-content:space-between;padding:3px 0;color:${c||"inherit"}">
   <span style="font-family:'Inter',system-ui,sans-serif;font-size:12px;color:var(--muted)">${l}</span><span id="${id}">${fmt(v)}</span></div>`}
 
+const DEFAULT_COLLAPSED=["Ближайшие сроки","Что внести","Проверка данных","Вычет по ИИС","Имущественный вычет","Ипотека ВТБ","Налог с пассивного дохода","Ипотека против портфеля","Валютная структура","Структура пассивного дохода","Пассивный доход по отчётам брокеров","Кто принёс доход в 2025-м","Кварталы","Заполнить годы"];
+function cardKey(t){return t.replace(/\s*·\s*\d[\d\s]*.*$/,"").trim()}
+function bindCollapse(){
+  S.ui=S.ui||{}; S.ui.collapsed=S.ui.collapsed||{};
+  document.querySelectorAll(".card").forEach(card=>{
+    const eb=card.firstElementChild;
+    if(!eb||!eb.classList||!eb.classList.contains("eyebrow"))return;
+    const key=cardKey(eb.textContent||"");
+    if(!key)return;
+    const saved=S.ui.collapsed[key];
+    const open=saved!==undefined?!saved:DEFAULT_COLLAPSED.indexOf(key)<0;
+    card.classList.toggle("collapsed",!open);
+    eb.onclick=()=>{
+      const nowCollapsed=!card.classList.contains("collapsed");
+      card.classList.toggle("collapsed",nowCollapsed);
+      S.ui.collapsed[key]=nowCollapsed;
+      save();
+    };
+  });
+}
 function bind(){
+  bindCollapse();
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{V.tab=b.dataset.tab;render()});
   document.querySelectorAll("button[data-m]").forEach(b=>b.onclick=()=>{V.month=b.dataset.m;render()});
   document.querySelectorAll("tr[data-m]").forEach(b=>b.onclick=()=>{V.month=b.dataset.m;render()});
