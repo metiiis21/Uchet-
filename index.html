@@ -502,7 +502,20 @@ function fiCard(st){
     ${fl("Не хватает",fmt(gap)+" ₽","var(--cop)")}
     ${fl("Накопления в год",(sav>=0?"":"−")+fmt(Math.abs(sav))+" ₽",sav>=0?"var(--mal)":"var(--cop)")}
     ${fl("До цели",yrs===null?"не достигается при текущем темпе":yrs.toFixed(1).replace(".",",")+" лет",yrs===null?"var(--cop)":"var(--ink)")}
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Доходность считается от фактического пассивного дохода за ${st.f.length} мес. к текущему капиталу.${st.avgExp?"":" Регулярные расходы взяты расчётно: отток за вычетом ремонта ("+fmt(reno)+" ₽)."}</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Доходность считается от фактического пассивного дохода за ${st.f.length} мес. к текущему капиталу.${st.avgExp?"":" Регулярные расходы взяты расчётно: отток за вычетом ремонта ("+fmt(reno)+" ₽)."}</div>
+    <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">
+      <div class="eyebrow" style="margin-bottom:2px">Дорожная карта по уровням</div>
+      ${LEVELS.map(([name,lvl])=>{
+        const reqL=yield_>0?lvl*12/yield_:0, reached=cap>=reqL;
+        const yrsL=reached?0:years(cap,reqL,yield_,sav);
+        const when=(yrsL!==null&&yrsL>0)?new Date(Date.now()+yrsL*365.25*86400000).toLocaleDateString("ru-RU",{month:"short",year:"numeric"}):"";
+        const label=reached?"✓ достигнуто":yrsL===null?"не достигается":yrsL.toFixed(1).replace(".",",")+" лет"+(when?" · "+when:"");
+        const color=reached?"var(--mal)":yrsL===null?"var(--cop)":"var(--ink)";
+        return `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)">
+          <span style="font-size:12px">${name} <span class="mono" style="color:var(--muted);font-size:10px">${fmt(lvl)} ₽/мес</span></span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:${color}">${label}</span></div>`;
+      }).join("")}
+      <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4">Та же формула, что и выше, сразу для каждого уровня жизни — при текущей доходности портфеля и годовых накоплениях. Разовые поступления (вроде майских 800 000 ₽) и смена доходности расчёт не учитывает.</div></div></div>`;
 }
 function flowCard(st){
   const tot=st.yp||1,w=st.ywd/tot*100;
