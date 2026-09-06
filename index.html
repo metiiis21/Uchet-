@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Личный учёт 2026</title>
+<meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#EDEEEA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1C2321" media="(prefers-color-scheme: dark)">
@@ -70,75 +71,41 @@
 </style>
 <div id="app">Загружаю…</div>
 <script>
-const YEARS_SEED={
-  "2022":{inc:463116,tax:59685},
-  "2023":{inc:97612,tax:4253},
-  "2024":{inc:3444421,tax:246431},
-  "2025":{inc:5278840,tax:375569,cap:19989000}
-};
-const BROKER={
-  src:"15 счетов · Т-Банк, Альфа, Сбер, Freedom · 6 143 операции и сделки",
-  y:{
-   "2024":{inc:318570,cou:88878,div:229691,fnd:0,tax:51942,fee:23605,pay:235,net:3274996,turn:7477673},
-   "2025":{inc:987227,cou:527125,div:427627,fnd:32475,tax:112745,fee:33983,pay:1367,net:6577540+850065,turn:14745675}},
-  y26:1649482,
-  top25:[["a2","Пенсия 2035",210363],["a6","Ипотека 1.6",170702],["a3","ИИС",141277],
-         ["a1","Ипотека 2.8",117990],["a19","Степан",116194],["a8","ФНБ",61690],
-         ["a7","Рантье",36615],["a4","Мой Пассив",26210],["a10","Freedom",21365],["a9","Китай",21084]]
-};
+const YEARS_SEED={};
+const BROKER={src:"",y:{},y26:0,top25:[]};
 const MONTHS=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 const SHORT=["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
-const FIELDS=[["bank","Банк %"],["div","Дивиденды с БР"],["salary","Зарплата"],["katya","Катя ПИ"],["pi","ПИ"],["other","Иное"]];
-const CURRENCY={a10:"USD / AED / EUR",a11:"USD",a9:"HKD",a16:"USD (BTC/ETH)",a12:"USD (BTC/ETH)",a13:"USD (BTC/ETH)",a14:"USD (BTC/ETH)",a15:"USD (BTC/ETH)",a21:"USD (BTC/ETH)"};
+const FIELDS=[["bank","Банк %"],["div","Дивиденды с БР"],["salary","Зарплата"],["katya","Партнёр ПИ"],["pi","ПИ"],["other","Иное"]];
+const CURRENCY={};
 const CUR_COLOR={"RUB":"#176B54","USD / AED / EUR":"#4A6FA5","USD":"#93AECC","HKD":"#B25B2A","USD (BTC/ETH)":"#8A7A2E"};
-const DEBTS=[["d1","Ипотека ВТБ V634/2007-0001239"],["d2","Прочие кредиты"],["d3","Прочие обязательства"]];
-const INFO_DEBTS=[["i1","Ипотека ВТБ V634/3807-0000940","обслуживают родители",4747769]];
+const DEBTS=[["d1","Кредит 1"],["d2","Кредит 2"],["d3","Прочие обязательства"]];
+const INFO_DEBTS=[];
 const DATES=["31.12.2025","01.02.2026","01.03.2026","01.04.2026","01.05.2026","01.06.2026","01.07.2026","01.08.2026","01.09.2026","01.10.2026","01.11.2026","01.12.2026","31.12.2026"];
 const ACCOUNTS=[
- ["a1","Альфа-Банк · 3737261","БР (Ипотека 2.8)","Брокерские",[3150,3239,3317,3351,3302,null,3145,3081]],
- ["a2","Сбер · 404PJGR","БР (Пенсия 2035)","Брокерские",[2940,2956,2999,2943,2846,null,2649,2678]],
- ["a3","Сбер · S207VB1","БР (ИИС)","Брокерские",[1614,1664,1707,1709,1689,null,1641,1612]],
- ["a4","Т-Банк · 2221205099","БР (Мой Пассив)","Брокерские",[1213,1320,1047,1056,1355,null,1597,1676]],
- ["a23","Т-Банк · 2000093965","ИИС (лестница ОФЗ)","Брокерские",[0,0,199,254,258,null,316,316]],
- ["a6","Т-Банк · 2243232683","БР (Ипотека 1.6)","Брокерские",[1776,1800,1822,1831,1831,null,1822,1877]],
- ["a7","Т-Банк · 2097789750","БР (Рантье)","Брокерские",[532,552,518,520,522,null,487,475]],
- ["a8","Т-Банк · 2183313915","БР (ФНБ)","Брокерские",[863,880,895,895,893,null,885,902]],
- ["a9","Т-Банк · 2196567693","БР (Китай)","Брокерские",[350,374,360,383,388,null,337,366]],
- ["a10","Freedom · брокерский","Акции США и ОАЭ","Брокерские",[1007,992,966,976,1035,null,1110,1276]],
- ["a11","Freedom Finance","Вклад · D7T5790","Вклады",[508,493,500,508,487,null,467,413]],
- ["a17","Альфа-Банк","Вклад (Ремонт)","Вклады",[2000,1650,880,125,693,null,300,0]],
- ["a18","Альфа-Банк","Вклад","Вклады",[1000,1000,1000,1000,0,null,0,0]],
- ["a12","CRYPTO · Ledger","BTC 0,0599 · USDT 808 · GRAM 86","Крипта",[448,405,338,333,428,null,332,491]],
- ["a13","CRYPTO · 0x5592…80b4","Кошелёк (USDC, WBTC, ETH, PAXG)","Крипта",[177,165,150,155,160,null,120,184]],
- ["a14","CRYPTO · Metis21","Metamask (USDT, ETH)","Крипта",[105,100,103,104,100,null,102,124]],
- ["a16","CRYPTO · Tradernet","Цифра (BTC/ETH)","Крипта",[300,283,310,390,440,null,371,446]],
- ["a19","Т-Банк · 2098346709","Счёт Степана","Степан",[1986,2032,2051,2028,1989,null,1845,1937]],
- ["a22","—","Иное","Прочее",[20,null,null,null,400,null,270,150]]];
+ ["a1","—","Брокерский 1","Брокерские",[]],
+ ["a2","—","Брокерский 2","Брокерские",[]],
+ ["a3","—","ИИС","Брокерские",[]],
+ ["a4","—","Брокерский 3","Брокерские",[]],
+ ["a23","—","ИИС 2","Брокерские",[]],
+ ["a6","—","Брокерский 4","Брокерские",[]],
+ ["a7","—","Брокерский 5","Брокерские",[]],
+ ["a8","—","Брокерский 6","Брокерские",[]],
+ ["a9","—","Брокерский 7","Брокерские",[]],
+ ["a10","—","Зарубежный брокер","Брокерские",[]],
+ ["a11","—","Вклад 1","Вклады",[]],
+ ["a17","—","Вклад 2","Вклады",[]],
+ ["a18","—","Вклад 3","Вклады",[]],
+ ["a12","—","Кошелёк 1","Крипта",[]],
+ ["a13","—","Кошелёк 2","Крипта",[]],
+ ["a14","—","Кошелёк 3","Крипта",[]],
+ ["a16","—","Кошелёк 4","Крипта",[]],
+ ["a19","—","Счёт ребёнка","Ребёнок",[]],
+ ["a22","—","Иное","Прочее",[]]];
 const RENO_ACC=["a17","a18"];
-const VERIFIED={
- a6:{n:"Ипотека 1.6",v0:1776000,v1:1877000,dep:12354,inc:284567,r:5.0},
- a8:{n:"ФНБ",v0:863000,v1:902000,dep:0,inc:87416,r:4.5},
- a9:{n:"Китай",v0:350000,v1:388000,dep:24700,inc:1232,r:3.6},
- a19:{n:"Степан 2036",v0:1986000,v1:1937000,dep:0,inc:215603,r:-2.5},
- a1:{n:"Ипотека 2.8",v0:3150394,v1:3080893,dep:348,inc:235251,r:-2.2},
- a7:{n:"Рантье",v0:532000,v1:475000,dep:0,inc:118167,r:-10.7},
- a16:{n:"Крипта (Цифра)",v0:300000,v1:446000,dep:190685,inc:0,r:-10.8},
- a10:{n:"Freedom (брокерский + вклад)",v0:1515000,v1:1689000,dep:0,inc:0,r:11.5,ids:["a10","a11"]},
- a3:{n:"Сбер ИИС",v0:1614136,v1:1611675,dep:0,inc:187987,r:-0.2},
- a2:{n:"Сбер Пенсия 2035",v0:2939995,v1:2677928,dep:0,inc:273573,r:-8.9}};
-const UNVERIFIED={a4:"начальная сумма расходится с потоками",a23:"оценка по вложениям, нет рыночной цены"};
-const GROUPS=["Брокерские","Вклады","Крипта","Степан","Прочее"];
-const GC={"Брокерские":"#176B54","Вклады":"#8A7A2E","Крипта":"#B25B2A","Степан":"#4A6FA5","Прочее":"#6E7873"};
+const GROUPS=["Брокерские","Вклады","Крипта","Ребёнок","Прочее"];
+const GC={"Брокерские":"#176B54","Вклады":"#8A7A2E","Крипта":"#B25B2A","Ребёнок":"#4A6FA5","Прочее":"#6E7873"};
 const LEVELS=[["КОМФОРТ",250000],["КОМФОРТ +",350000],["БИЗНЕС",500000],["БИЗНЕС +",700000],["LUXURY",1000000]];
-const SEED_INCOME={
- "Январь":{bank:35108,div:197731,salary:162000,katya:20000,pi:50000,other:45000,wd:0},
- "Февраль":{bank:12098,div:131973,salary:168000,katya:20000,pi:90000,other:0,wd:0},
- "Март":{bank:14722,div:163817,salary:130000,katya:20000,pi:120000,other:50000,wd:0},
- "Апрель":{bank:13663,div:250870,salary:82200,katya:20000,pi:20000,other:0,wd:24829},
- "Май":{bank:7697,div:170361,salary:79000,katya:20000,pi:800000,other:0,wd:13207},
- "Июнь":{bank:5596,div:291579,salary:113500,katya:20000,pi:0,other:0,wd:13799},
- "Июль":{bank:5516,div:216977,salary:76700,katya:20000,pi:0,other:0,wd:29437},
- "Август":{bank:5165,div:226174,salary:62000,katya:20000,wd:28179}};
+const SEED_INCOME={};
 
 const fmt=n=>(n||n===0)?Math.round(n).toLocaleString("ru-RU"):"—";
 const num=s=>{const v=parseInt(String(s).replace(/[^\d]/g,""),10);return isNaN(v)?0:v};
@@ -147,22 +114,13 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 let S={income:JSON.parse(JSON.stringify(SEED_INCOME)),capital:{}};
 DATES.forEach(d=>S.capital[d]={});
 ACCOUNTS.forEach(a=>a[4].forEach((v,i)=>{if(v!==null)S.capital[DATES[i]][a[0]]=v*1000}));
-S.goal=250000;
+S.goal=100000;
 S.debts={"01.08.2026":{d1:4765914}};
 S.goals={a1:2800000,a6:1600000}; S.iis={dep:300000}; S.ops=[]; S.years=JSON.parse(JSON.stringify(YEARS_SEED));
 let V={tab:"obzor",month:"Август",date:"01.08.2026"};
 
 const PATCH_V=10;
-const PATCH={
-  capital:{"31.12.2025":{a1:3150000,a12:448000,a19:1986000,a2:2940000,a23:0,a3:1614000,a4:1213000},"01.02.2026":{a1:3239000,a12:405000,a19:2032000,a2:2956000,a23:0,a3:1664000,a4:1320000},"01.03.2026":{a1:3317000,a12:338000,a19:2051000,a2:2999000,a23:199000,a3:1707000,a4:1047000},"01.04.2026":{a1:3351000,a12:333000,a19:2028000,a2:2943000,a23:254000,a3:1709000,a4:1056000},"01.05.2026":{a1:3302000,a12:428000,a19:1989000,a2:2846000,a23:258000,a3:1689000,a4:1355000},"01.07.2026":{a1:3145000,a12:332000,a19:1845000,a2:2649000,a23:316000,a3:1641000,a4:1597000},"01.08.2026":{a13:184000,a14:124000,a1:3081000,a12:491000,a19:1937000,a2:2678000,a23:316000,a3:1612000,a4:1676000}},
-  debts:{"01.08.2026":{d1:4765914}},
-  goals:{a1:2800000,a6:1600000},
-  iis:{dep:300000},
-  years:{"2024":{pas:318570},"2025":{pas:987227}},
-  bank:{"Январь":35108,"Февраль":12098,"Март":14722,"Апрель":13663,"Май":7697,"Июнь":5596,"Июль":5516,"Август":5165},
-  div:{"Январь":197731,"Февраль":131973,"Март":163817,"Апрель":250870,"Май":170361,"Июнь":291579,"Июль":216977,"Август":226174},
-  wd:{"Январь":0,"Февраль":0,"Март":0,"Апрель":24829,"Май":13207,"Июнь":13799,"Июль":29437,"Август":28179}
-};
+const PATCH={capital:{},debts:{},goals:{},iis:{dep:0},bank:{},div:{},wd:{},years:{}};
 function applyPatch(){
   Object.entries(PATCH.capital).forEach(([d,m])=>{S.capital[d]=S.capital[d]||{};
     Object.entries(m).forEach(([k,v])=>{S.capital[d][k]=v});});
@@ -181,11 +139,11 @@ const KEY="uchet-2026";
 async function load(){
   try{const t=localStorage.getItem(KEY);
     if(t){const d=JSON.parse(t);
-      if(d.income)S.income=d.income; if(d.capital)S.capital=d.capital; if(d.goal)S.goal=d.goal; if(d.debts)S.debts=d.debts; if(d.goals)S.goals=d.goals; if(d.iis)S.iis=d.iis; if(d.ops)S.ops=d.ops; if(d.years)S.years=d.years;
+      if(d.income)S.income=d.income; if(d.capital)S.capital=d.capital; if(d.goal)S.goal=d.goal; if(d.debts)S.debts=d.debts; if(d.goals)S.goals=d.goals; if(d.iis)S.iis=d.iis; if(d.ops)S.ops=d.ops; if(d.years)S.years=d.years; if(d.names){S.names=d.names;applyNames();}
       if((d.patch||0)<PATCH_V){applyPatch();save();}
       return;}}catch(e){}
   try{const r=await window.storage.get(KEY);const d=JSON.parse(r.value);
-    if(d.income)S.income=d.income; if(d.capital)S.capital=d.capital; if(d.goal)S.goal=d.goal; if(d.debts)S.debts=d.debts; if(d.goals)S.goals=d.goals; if(d.iis)S.iis=d.iis; if(d.ops)S.ops=d.ops; if(d.years)S.years=d.years;
+    if(d.income)S.income=d.income; if(d.capital)S.capital=d.capital; if(d.goal)S.goal=d.goal; if(d.debts)S.debts=d.debts; if(d.goals)S.goals=d.goals; if(d.iis)S.iis=d.iis; if(d.ops)S.ops=d.ops; if(d.years)S.years=d.years; if(d.names){S.names=d.names;applyNames();}
     if((d.patch||0)<PATCH_V){applyPatch();save();}
     return;}catch(e){}
   applyPatch();
@@ -205,6 +163,12 @@ function warn(){const el=document.getElementById("saved");if(!el)return;
 function flash(){const el=document.getElementById("saved");if(!el)return;
   el.textContent="сохранено";el.style.color="var(--mal)";setTimeout(()=>{el.style.color="transparent"},1500);}
 
+function applyNames(){
+  if(!S.names)return;
+  ACCOUNTS.forEach(a=>{const n=S.names[a[0]];
+    if(n&&n.length>=2){a[1]=n[0];a[2]=n[1];}});
+}
+function nameMap(){return Object.fromEntries(ACCOUNTS.map(a=>[a[0],[a[1],a[2]]]))}
 function impErr(t){const m=document.getElementById("impmsg");
   if(m){m.textContent=t;m.style.color="var(--cop)";}}
 function applyImport(text){
@@ -215,6 +179,8 @@ function applyImport(text){
   S.debts=d.debts||{}; S.goals=d.goals||{};
   S.iis=d.iis||{}; S.ops=d.ops||[]; S.years=d.years||JSON.parse(JSON.stringify(YEARS_SEED));
   S.patch=d.patch||0;
+  if(d.names)S.names=d.names;
+  applyNames();
   if((S.patch||0)<PATCH_V)applyPatch();
   save(); render();
   const m=document.getElementById("impmsg");
@@ -228,6 +194,40 @@ function mrow(m){const v=S.income[m]||{};
   return{m,p,sal,kat,a:sal+kat,e,wd,reinv,hasW,t:p+sal+kat+e};}
 const rows=()=>MONTHS.map(mrow);
 const capSum=d=>ACCOUNTS.reduce((s,a)=>s+num((S.capital[d]||{})[a[0]]),0);
+const dToIso=d=>{const p=d.split(".");return p[2]+"-"+p[1]+"-"+p[0];};
+function periodOps(fromD,toD){
+  const fi=dToIso(fromD),ti=dToIso(toD);
+  return (S.ops||[]).filter(o=>o.d>=fi&&o.d<=ti);
+}
+function acctFlow(id,ops){
+  let flow=0,inc=0;
+  ops.forEach(o=>{
+    const s=num(o.s);
+    if(o.k==="inc"){if(o.a===id)inc+=s;return;}
+    if(o.k==="dep"||o.k==="one"){if(o.a===id)flow+=s;return;}
+    if(o.k==="wdr"||o.k==="exp"){if(o.a===id)flow-=s;return;}
+    if(o.k==="mov"){if(o.a===id)flow-=s;if(o.t===id)flow+=s;return;}
+  });
+  return{flow,inc};
+}
+function liveReturns(){
+  const filled=DATES.filter(d=>capSum(d)>0);
+  if(filled.length<2)return{L:[],from:"",to:"",skipped:[]};
+  const from=filled[0],to=filled[filled.length-1];
+  const ops=periodOps(from,to);
+  const L=[],skipped=[];
+  ACCOUNTS.forEach(a=>{
+    const id=a[0];
+    const v0=num((S.capital[from]||{})[id]),v1=num((S.capital[to]||{})[id]);
+    if(!v0&&!v1)return;
+    if(!v0){skipped.push([a[2],"счёт открыт в этом периоде"]);return;}
+    if(!v1){skipped.push([a[2],"счёт закрыт/обнулён к "+to]);return;}
+    const{flow,inc}=acctFlow(id,ops);
+    const r=Math.round(((v1-v0-flow)/v0*100)*10)/10;
+    L.push({k:id,n:a[2],v0,v1,dep:flow,inc,r});
+  });
+  return{L,from,to,skipped};
+}
 
 function stats(){
   const R=rows(),f=R.filter(r=>r.t>0);
@@ -393,7 +393,7 @@ function render(){
       h+=`<div class="row"><label style="flex:1;font-size:13px">${l}</label>
         <input inputmode="numeric" data-f="${k}" value="${v===undefined||v===""?"":fmt(v)}" placeholder="0"></div>`});
     h+=`</div><div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px" class="mono">
-      ${dl("Итого % и БР","d-p",r.p,"var(--mal)")}${dl("Итого Зарплата + Катя","d-a",r.a)}${dl("Итого дополнительно","d-e",r.e)}
+      ${dl("Итого % и БР","d-p",r.p,"var(--mal)")}${dl("Итого Зарплата + Партнёр","d-a",r.a)}${dl("Итого дополнительно","d-e",r.e)}
       <div style="display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:8px;padding-top:8px;font-weight:700;font-size:16px">
         <span style="font-family:'Inter',system-ui,sans-serif">Итого</span><span id="d-t">${fmt(r.t)} ₽</span></div></div>
       <div class="row" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
@@ -406,7 +406,7 @@ function render(){
         <label style="flex:1;font-size:13px;color:var(--gold)">Ремонт (разово)</label>
         <input inputmode="numeric" data-f="reno" value="${(S.income[V.month]||{}).reno?fmt(S.income[V.month].reno):""}" placeholder="0"></div>
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">
-        <span>Сбережено</span><span class="mono" id="d-s" style="color:var(--ink)">${(S.income[V.month]||{}).exp?fmt(r.t-num(S.income[V.month].exp))+" ₽":"—"}</span></div></div>
+        <span>втором брокережено</span><span class="mono" id="d-s" style="color:var(--ink)">${(S.income[V.month]||{}).exp?fmt(r.t-num(S.income[V.month].exp))+" ₽":"—"}</span></div></div>
       <div class="card"><div class="eyebrow">Все месяцы</div>
       <div style="font-size:11px;color:var(--muted);margin:4px 0 2px">нажмите на месяц, чтобы открыть его выше</div>
       <table class="mono" style="font-size:12px;margin-top:8px">
@@ -547,7 +547,7 @@ function expCard(st){
     ${fl("Ремонт"+(st.nreno?"":" (оценка по вкладам)"),"− "+fmt(reno)+" ₽","var(--gold)")}
     ${fl("Регулярные расходы","− "+fmt(reg)+" ₽","var(--cop)")}
     ${Math.abs(rest)>1000?fl("Не объяснено",fmt(rest)+" ₽","var(--muted)"):""}
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Норма сбережений считается от дохода, дошедшего до бюджета: реинвестированные купоны потратить нельзя, они уже в капитале. Ремонт оценён по оттоку с вкладов в Альфа-Банке, включая майское пополнение.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Норма сбережений считается от дохода, дошедшего до бюджета: реинвестированные купоны потратить нельзя, они уже в капитале. Ремонт оценён по оттоку с вкладов в банке, включая майское пополнение.</div></div>`;
 }
 
 function renoCum(){
@@ -577,13 +577,6 @@ function checks(){
       if(!p||!c)return; const dif=c-p;
       if(Math.abs(dif)>150000&&Math.abs(dif)/p>0.4)
         out.push([esc(a[2])+" · "+filledDates[i],`${dif>0?"рост":"падение"} на ${Math.round(Math.abs(dif)/p*100)}% (${fmt(Math.abs(dif))} ₽) — проверьте, был ли перевод`]);});}
-  const last=filledDates[filledDates.length-1];
-  Object.keys(VERIFIED).forEach(k=>{
-    const ids=VERIFIED[k].ids||[k];
-    const v=ids.reduce((s,id)=>s+num((S.capital[last]||{})[id]),0); if(!v)return;
-    const dif=v-VERIFIED[k].v1;
-    if(Math.abs(dif)>25000)
-      out.push([VERIFIED[k].n+" не сходится с отчётом",`в таблице ${fmt(v)}, по отчёту ${fmt(VERIFIED[k].v1)} — разница ${fmt(Math.abs(dif))} ₽`]);});
   const R=rows();
   MONTHS.forEach((m,i)=>{const r=R[i];
     if(r.t===0&&R.slice(0,i).some(x=>x.t>0)&&R.slice(i+1).some(x=>x.t>0))
@@ -638,15 +631,13 @@ function monthsCard(R){
       <div class="mono" style="font-size:9.5px;color:var(--muted)">
         ${r.p?`<span style="color:var(--mal)">●</span> пассив ${fmt(r.p)}  `:""}
         ${r.sal?`<span style="color:var(--blue)">●</span> зарплата ${fmt(r.sal)}  `:""}
-        ${r.kat?`<span style="color:var(--kat)">●</span> Катя ${fmt(r.kat)}  `:""}
+        ${r.kat?`<span style="color:var(--kat)">●</span> Партнёр ${fmt(r.kat)}  `:""}
         ${r.e?`<span style="color:var(--cop)">●</span> доп. ${fmt(r.e)}`:""}</div></div>`;});
   return h+`</div>`;
 }
-const MORT={bank:"ВТБ",num:"V634/2007-0001239",from:"04.10.2023",
-  bal:4765913.75, acc:10654.76, rate:5.10, psk:5.32, pay:44350.67,
-  start:5571603.28, term:180, done:37, left:144, endDate:"15.08.2038",
-  paidInt:755796.73, paidBody:805689.53, totalInt:2370354.74};
+const MORT={bank:"",num:"",from:"",bal:0,acc:0,rate:0,psk:0,pay:0,start:0,term:0,done:0,left:0,endDate:"",paidInt:0,paidBody:0,totalInt:0};
 function mortCard(){
+  if(!MORT.start)return "";
   const m=MORT, total=m.paidBody+m.paidInt, w=m.paidBody/m.start*100;
   const restInt=m.totalInt-m.paidInt, rest=m.bal+restInt;
   const d=stats().now.d;
@@ -670,15 +661,10 @@ function mortCard(){
     <div style="border-top:2px solid var(--ink);margin-top:10px;padding-top:9px">
       ${fl("Накоплено на ипотечных счетах",fmt(cover)+" ₽","var(--mal)")}
       ${fl("Покрытие долга",Math.round(cover/m.bal*100)+"%",cover>=m.bal?"var(--mal)":"var(--cop)")}</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Данные из графика ВТБ от 01.09.2026. Гасить досрочно невыгодно: ипотечные счета приносят 12–16% годовых купонами против ${String(m.rate).replace(".",",")}% по кредиту.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Гасить досрочно невыгодно: ипотечные счета приносят купонный доход против ставки по кредиту.</div></div>`;
 }
-const IIS={limit:400000,rate:0.13,acc:"Сбер S207VB1 + Т-Банк 2000093965"};
-const DEADLINES=[
-  {d:"2026-12-31",t:"Довнести 100 000 ₽ на ИИС",s:"вернут ещё 13 000 ₽ · перенести на 2027 нельзя"},
-  {d:"2026-12-25",t:"Оставить ~240 000 ₽ на брокерских счетах",s:"в январе спишут НДФЛ с купонов"},
-  {d:"2027-01-15",t:"Подать декларации за 2024 и 2025",s:"к возврату 308 678 ₽ · срок не горит, но чем раньше, тем раньше деньги"},
-  {d:"2027-08-31",t:"Оферта по облигации Кокс 001Р-06",s:"купон 16,85 ₽ гарантирован только до этой даты"}
-];
+const IIS={limit:400000,rate:0.13,acc:"ИИС"};
+const DEADLINES=[];
 function deadlineCard(){
   const now=new Date();
   const L=DEADLINES.map(x=>({...x,days:Math.round((new Date(x.d)-now)/86400000)}))
@@ -694,13 +680,12 @@ function deadlineCard(){
       <div style="font-size:10px;color:var(--muted);margin-top:2px">${x.s}</div></div></div>`;});
   return h+`</div>`;
 }
-const DED={buy:260000,int:390000,paidInt:565775.32,
-  ndfl:[[2024,246431],[2025,375569]],
-  now2024:246431, now2025:62247};
+const DED={buy:0,int:0,paidInt:0,ndfl:[],now2024:0,now2025:0};
 function dedCard(){
+  if(!DED.buy&&!DED.int)return "";
   const d=DED, ready=d.now2024+d.now2025;
   return `<div class="card"><div class="eyebrow">Имущественный вычет</div>
-    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">квартира по ипотеке V634/3807-0000940 · вычет ранее не использован</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">квартира по ипотеке — · вычет ранее не использован</div>
     ${fl("Вычет на покупку",fmt(d.buy)+" ₽")}
     ${fl("Вычет на проценты, всего",fmt(d.int)+" ₽")}
     ${fl("Потенциально к возврату",fmt(d.buy+d.int)+" ₽","var(--mal)")}
@@ -726,14 +711,11 @@ function iisCard(){
     ${fl("Возврат НДФЛ при текущем взносе",fmt(ret)+" ₽",ret?"var(--mal)":"var(--muted)")}
     ${fl("Если довнести "+fmt(left)+" ₽","+ "+fmt(maxRet-ret)+" ₽","var(--mal)")}
     ${fl("Максимум за год",fmt(maxRet)+" ₽")}
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Вычет типа А: 13% от взноса, не более 400 000 ₽ в год и не больше уплаченного вами НДФЛ. Взнос должен пройти до 31 декабря — перенести на следующий год нельзя. Оба счёта в режиме ИИС‑3, лимит 400 000 ₽ считается на человека за год по всем счетам сразу. Сберовский трансформирован из ИИС 2023 года, поэтому срок владения у него истекает раньше, чем у открытого в 2026 — довносить выгоднее туда.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Вычет типа А: 13% от взноса, не более 400 000 ₽ в год и не больше уплаченного вами НДФЛ. Взнос должен пройти до 31 декабря — перенести на следующий год нельзя. Оба счёта в режиме ИИС‑3, лимит 400 000 ₽ считается на человека за год по всем счетам сразу. Первый трансформирован из ИИС 2023 года, поэтому срок владения у него истекает раньше, чем у открытого в 2026 — довносить выгоднее туда.</div></div>`;
 }
-const TAX={
-  withheld:[["Т-Банк · 5 счетов",34831],["Альфа · 3737261",4315],["Freedom",3322],["Сбер · оба счёта",0]],
-  shielded:187987+17198,   // купоны на ИИС — налог не удерживается до закрытия
-  note:"за 2025 год, списано 05.01.2026"
-};
+const TAX={withheld:[],shielded:0,note:""};
 function taxCard(st){
+  if(!TAX.withheld.length)return "";
   const n=st.f.length||1, ann=st.yp*12/n;
   const shieldAnn=TAX.shielded*12/7, taxable=Math.max(0,ann-shieldAnn);
   const base=2400000;
@@ -755,14 +737,15 @@ function taxCard(st){
     <div style="border-top:2px solid var(--ink);margin-top:10px;padding-top:9px">
       ${fl("Спишется в январе 2027","≈ "+fmt(left)+" ₽","var(--cop)")}
       ${fl("Пассивный доход после налога",fmt(ann-due)+" ₽ · "+fmt((ann-due)/12)+" ₽/мес","var(--mal)")}</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Сбер за 2026 год пока не удержал ничего — он списывает налог в январе или при выводе денег. Удержание по Альфе — ${TAX.note}. Держите на счетах остаток к началу года, иначе брокер удержит из первых поступивших купонов. Расчёт приблизительный: реальная база зависит от сделок с прибылью и убытком.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Второй брокер за 2026 год пока не удержал ничего — он списывает налог в январе или при выводе денег. Удержание по третьему брокеру — ${TAX.note}. Держите на счетах остаток к началу года, иначе брокер удержит из первых поступивших купонов. Расчёт приблизительный: реальная база зависит от сделок с прибылью и убытком.</div></div>`;
 }
-const SPREAD={bal:4765913.75,rate:0.051,flow:894970,fact:32363};
+const SPREAD={bal:0,rate:0,flow:0,fact:0};
 function spreadCard(){
+  if(!SPREAD.bal)return "";
   const s=SPREAD, cost=s.bal*s.rate;
   const byFlow=s.flow-cost, byFact=s.fact-cost;
   return `<div class="card"><div class="eyebrow">Ипотека против портфеля</div>
-    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">счета «Ипотека 2.8» и «Ипотека 1.6» против кредита под 5,1%</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">счета целевые счета против кредита</div>
     ${fl("Проценты по ипотеке за год","− "+fmt(cost)+" ₽","var(--cop)")}
     ${fl("Купоны этих счетов за год","+ "+fmt(s.flow)+" ₽","var(--mal)")}
     ${fl("Спред по денежному потоку",(byFlow>=0?"+ ":"− ")+fmt(Math.abs(byFlow))+" ₽",byFlow>=0?"var(--mal)":"var(--cop)")}
@@ -771,15 +754,10 @@ function spreadCard(){
     ${fl("Спред по факту, с переоценкой",(byFact>=0?"+ ":"− ")+fmt(Math.abs(byFact))+" ₽",byFact>=0?"var(--mal)":"var(--cop)")}
     <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">По купонному потоку не гасить ипотеку выгодно на ${fmt(byFlow)} ₽ в год. Но если считать с переоценкой бумаг, за 2026 год эти счета отработали хуже, чем стоит кредит. Первая строка — что портфель приносит деньгами, вторая — что он приносит на самом деле.</div></div>`;
 }
-const PASSIVE_SRC=[
-  ["Т-Банк · 5 счетов",828197,"купоны и дивиденды"],
-  ["Сбер · 2 счёта",533485,"купоны и дивиденды"],
-  ["Альфа · 3737261",266093,"купоны, дивиденды, ЗПИФ"],
-  ["Freedom · брокерский",21707,"дивиденды США и ОАЭ"],
-  ["Freedom · вклад",8565,"репо FRHC"]
-];
-const PASSIVE_KIND=[["Купоны по облигациям",84659],["Дивиденды по акциям",37281],["Выплаты ЗПИФ",144152]];
+const PASSIVE_SRC=[];
+const PASSIVE_KIND=[];
 function passiveCard(st){
+  if(!PASSIVE_SRC.length)return "";
   const tot=PASSIVE_SRC.reduce((s,x)=>s+x[1],0);
   const cols=["var(--mal)","var(--blue)","var(--cop)","var(--kat)","var(--gold)"];
   let bar="",list="";
@@ -797,17 +775,18 @@ function passiveCard(st){
     <div style="display:flex;height:10px;margin-bottom:10px;border-radius:2px;overflow:hidden">${bar}</div>
     ${list}
     <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:6px">
-      <div style="font-size:11px;color:var(--muted);padding-bottom:2px">По типу выплат — там, где отчёт это разделяет (Альфа)</div>
+      <div style="font-size:11px;color:var(--muted);padding-bottom:2px">По типу выплат — там, где отчёт это разделяет (Третий брокер)</div>
       ${kinds}</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Итого ${fmt(tot)} ₽. Разделить купоны и дивиденды по всем счетам нельзя: в отчётах Т‑Банка и Сбера они идут одной строкой «выплата доходов» и «корпоративные действия». По Альфе разделение есть, и там больше половины потока дают рентные ЗПИФ, а не облигации.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Итого ${fmt(tot)} ₽. Разделить купоны и дивиденды по всем счетам нельзя: в отчётах брокера и второго брокера они идут одной строкой «выплата доходов» и «корпоративные действия». По третьему брокеру разделение есть, и там больше половины потока дают рентные ЗПИФ, а не облигации.</div></div>`;
 }
 const OPS=[["dep","Пополнение извне","var(--mal)"],["wdr","Вывод на карту","var(--cop)"],
   ["mov","Перевод между счетами","var(--blue)"],["exp","Трата (ремонт и т.п.)","var(--gold)"],
-  ["one","Разовый доход","var(--kat)"]];
+  ["one","Разовый доход","var(--kat)"],["inc","Доход по счёту (купон/див.)","var(--mal)"]];
 function opLabel(k){const o=OPS.find(x=>x[0]===k);return o?o[1]:k}
 function opColor(k){const o=OPS.find(x=>x[0]===k);return o?o[2]:"var(--muted)"}
 function accName(id){const a=ACCOUNTS.find(x=>x[0]===id);return a?a[2]:"—"}
 function brokerCard(){
+  if(!BROKER.top25.length)return "";
   const st=stats(), B=BROKER, a=B.y["2024"], b=B.y["2025"];
   const d26=st.f.reduce((s,r)=>s+num((S.income[r.m]||{}).div),0);
   const c26=st.f.length;
@@ -857,7 +836,7 @@ function brokerCard(){
         <span class="mono" style="font-size:11.5px;font-weight:600">${fmt(v)}</span></div>
       <div style="height:6px;margin-top:3px;border-radius:2px;background:#fff;overflow:hidden">
         <div style="width:${v/tm*100}%;height:100%;background:var(--mal)"></div></div></div>`;});
-  h+=`<div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.45">Freedom пересчитан из долларов по среднегодовому курсу ЦБ 85,35. Счета 2010881365 и 2154267306 в трекере не заведены, их 63 736 ₽ в список не попали.</div></div>`;
+  h+=`<div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.45">Зарубежный брокер пересчитан из долларов по среднегодовому курсу ЦБ. Счета — и — в трекере не заведены, их суммы в список не попали.</div></div>`;
   return h;
 }
 function yearsTab(){
@@ -969,7 +948,7 @@ function curCard(d){
   return `<div class="card"><div class="eyebrow">Валютная структура</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">на ${d}</div>
     <div style="display:flex;height:10px;margin-bottom:10px">${bar}</div>${list}
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">В валюте ${Math.round(fxShare)}% портфеля. Именно эта часть дала весь положительный результат года — за счёт курса, а не роста активов. Валюта определяется по счёту целиком; юаневый остаток на ИИС Сбера отнесён к рублям.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">В валюте ${Math.round(fxShare)}% портфеля. Именно эта часть дала весь положительный результат года — за счёт курса, а не роста активов. Валюта определяется по счёту целиком; юаневый остаток на ИИС второго брокера отнесён к рублям.</div></div>`;
 }
 function goalsTab(){
   let h=`<div class="card"><div class="eyebrow">Цели по счетам</div>
@@ -990,12 +969,13 @@ function goalsTab(){
   return h+`</div>`;
 }
 function pnlCard(){
-  const L=Object.keys(VERIFIED).map(k=>{const x=VERIFIED[k];
-    const res=x.v1-x.v0-x.dep;
-    return{n:x.n,inc:x.inc,res,rev:res-x.inc};});
-  const mx=Math.max(...L.map(x=>Math.max(x.inc,Math.abs(x.rev))),1);
-  L.sort((a,b)=>b.res-a.res);
-  const tI=L.reduce((s,x)=>s+x.inc,0),tR=L.reduce((s,x)=>s+x.rev,0);
+  const{L,from,to,skipped}=liveReturns();
+  if(!L.length)return `<div class="card"><div class="eyebrow">Поток против переоценки</div>
+    <div style="font-size:12px;margin-top:8px;color:var(--muted)">Нужны остатки минимум на две заполненные даты, чтобы посчитать результат.</div></div>`;
+  const LL=L.map(x=>{const res=x.v1-x.v0-x.dep;return{n:x.n,inc:x.inc,res,rev:res-x.inc};});
+  const mx=Math.max(...LL.map(x=>Math.max(x.inc,Math.abs(x.rev))),1);
+  LL.sort((a,b)=>b.res-a.res);
+  const tI=LL.reduce((s,x)=>s+x.inc,0),tR=LL.reduce((s,x)=>s+x.rev,0);
   const bar=(inc,rev)=>`<div style="display:flex;align-items:center;height:9px;margin:5px 0">
     <div style="flex:1;display:flex;justify-content:flex-end">
       <div style="width:${Math.abs(Math.min(rev,0))/mx*100}%;height:9px;background:var(--cop)"></div></div>
@@ -1004,43 +984,46 @@ function pnlCard(){
       <div style="width:${Math.max(inc,0)/mx*100}%;height:9px;background:var(--mal)"></div>
       <div style="width:${Math.max(rev,0)/mx*100}%;height:9px;background:var(--kat)"></div></div></div>`;
   let h=`<div class="card"><div class="eyebrow">Поток против переоценки</div>
-    <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">из чего сложился результат каждого счёта · янв–июль 2026</div>`;
-  L.forEach(x=>{
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">из чего сложился результат каждого счёта · ${from}–${to}</div>`;
+  LL.forEach(x=>{
     h+=`<div style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px">${x.n}</span>
+        <span style="font-size:12px">${esc(x.n)}</span>
         <span class="mono" style="font-size:12px;font-weight:600;color:${x.res>=0?"var(--mal)":"var(--cop)"}">${x.res>=0?"+":"−"}${fmt(Math.abs(x.res))}</span></div>
       ${bar(x.inc,x.rev)}
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)" class="mono">
         <span>переоценка ${x.rev>=0?"+":"−"}${fmt(Math.abs(x.rev))}</span>
-        <span>поток ${x.inc?"+"+fmt(x.inc):"—"}</span></div></div>`;});
+        <span>доход по журналу ${x.inc?"+"+fmt(x.inc):"—"}</span></div></div>`;});
   h+=`<div style="border-top:2px solid var(--ink);padding-top:10px">
-    ${fl("Купоны и дивиденды","+ "+fmt(tI)+" ₽","var(--mal)")}
+    ${fl("Доход по Журналу (купоны/дивиденды)","+ "+fmt(tI)+" ₽","var(--mal)")}
     ${fl("Переоценка бумаг",(tR>=0?"+ ":"− ")+fmt(Math.abs(tR))+" ₽","var(--cop)")}
     ${fl("Итого результат",(tI+tR>=0?"+ ":"− ")+fmt(Math.abs(tI+tR))+" ₽")}</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Переоценка = результат минус полученный доход. Дивиденды Freedom в долларах сюда не вошли — курс пересчёта неизвестен, поэтому весь его плюс отнесён к переоценке.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Переоценка = результат минус доход, отмеченный в Журнале операцией «Доход по счёту». Если купоны и дивиденды туда не заносить, они попадут в переоценку — общий итог верный, просто разбивка грубее.${skipped.length?" Без данных: "+skipped.map(([n,r])=>esc(n)+" — "+r).join("; ")+".":""}</div></div>`;
   return h;
 }
 function retCard(){
-  const L=Object.keys(VERIFIED).map(k=>({k,...VERIFIED[k]})).sort((a,b)=>b.r-a.r);
-  const tv0=L.reduce((s,x)=>s+x.v0,0),tv1=L.reduce((s,x)=>s+x.v1,0);
-  const tdep=L.reduce((s,x)=>s+x.dep,0),tinc=L.reduce((s,x)=>s+x.inc,0);
+  const{L,from,to,skipped}=liveReturns();
+  if(!L.length)return `<div class="card"><div class="eyebrow">Доходность по счетам</div>
+    <div style="font-size:12px;margin-top:8px;color:var(--muted)">Нужны остатки минимум на две заполненные даты, чтобы посчитать доходность.</div></div>`;
+  const LS=L.slice().sort((a,b)=>b.r-a.r);
+  const tv0=LS.reduce((s,x)=>s+x.v0,0),tv1=LS.reduce((s,x)=>s+x.v1,0);
+  const tdep=LS.reduce((s,x)=>s+x.dep,0),tinc=LS.reduce((s,x)=>s+x.inc,0);
   const tr=(tv1-tv0-tdep)/tv0*100;
   let h=`<div class="card"><div class="eyebrow">Доходность по счетам</div>
-    <div style="font-size:11px;color:var(--muted);margin:4px 0 10px">янв–июль 2026, по данным брокерских отчётов</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 10px">${from}–${to} · считается из остатков и Журнала</div>
     <table class="mono" style="font-size:11px">`;
-  L.forEach(x=>{const c=x.r>0?"var(--mal)":"var(--cop)";
+  LS.forEach(x=>{const c=x.r>0?"var(--mal)":"var(--cop)";
     h+=`<tr style="border-top:1px solid var(--line)">
       <td style="padding:6px 0;font-family:'Inter',system-ui,sans-serif">
-        <div style="font-size:12px">${x.n}</div>
-        <div style="font-size:9px;color:var(--muted)">купоны ${fmt(x.inc)} ₽${x.dep?" · внесено "+fmt(x.dep):""}</div></td>
+        <div style="font-size:12px">${esc(x.n)}</div>
+        <div style="font-size:9px;color:var(--muted)">доход по журналу ${fmt(x.inc)} ₽${x.dep?" · внешний поток "+fmt(x.dep):""}</div></td>
       <td style="text-align:right;font-size:10px;color:var(--muted);white-space:nowrap">${fmt(x.v0/1000)}→${fmt(x.v1/1000)}</td>
       <td style="text-align:right;color:${c};font-weight:600;white-space:nowrap">${x.r>0?"+":""}${String(x.r).replace(".",",")}%</td></tr>`});
   h+=`<tr style="border-top:2px solid var(--ink)">
-    <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Всего<div style="font-size:9px;color:var(--muted);font-weight:400">купоны ${fmt(tinc)} ₽</div></td>
+    <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Всего<div style="font-size:9px;color:var(--muted);font-weight:400">доход по журналу ${fmt(tinc)} ₽</div></td>
     <td style="text-align:right;font-size:10px;color:var(--muted)">${fmt(tv0/1000)}→${fmt(tv1/1000)}</td>
     <td style="text-align:right;font-weight:700;color:${tr>0?"var(--mal)":"var(--cop)"}">${tr>0?"+":""}${tr.toFixed(1).replace(".",",")}%</td></tr></table>
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Тыс. ₽. Доходность по Модифицированному Дитцу: изменение стоимости за вычетом пополнений и выводов. Купоны и дивиденды реинвестированы и уже учтены в результате. Не хватает данных: Мой Пассив 2221205099 — ${UNVERIFIED.a4}; ОФЗ 2000093965 — ${UNVERIFIED.a23}.</div></div>`;
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Тыс. ₽. Доходность по Модифицированному Дитцу: изменение стоимости за вычетом внешних пополнений, выводов и переводов из Журнала. Считается автоматически по остаткам счетов — чем аккуратнее ведёте Журнал, тем точнее цифра.${skipped.length?" Без данных: "+skipped.map(([n,r])=>esc(n)+" — "+r).join("; ")+".":""}</div></div>`;
   return h;
 }
 
@@ -1053,7 +1036,7 @@ function split(st){
     <span style="display:flex;align-items:center;gap:6px;font-size:13px"><i class="sw" style="background:${c}"></i>${nm}</span>
     <span style="text-align:right"><span class="mono" style="font-weight:600">${fmt(v)} ₽</span>
     <span class="mono" style="font-size:10px;color:var(--muted);display:block">${fmt(v/n)} / мес · ${Math.round(v/tot*100)}%</span></span></div>`;
-  return bar+line("Моя зарплата",st.ysal,"var(--blue)")+line("Катя ПИ",st.ykat,"var(--kat)")+
+  return bar+line("Моя зарплата",st.ysal,"var(--blue)")+line("Партнёр ПИ",st.ykat,"var(--kat)")+
     `<div style="display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:4px;padding-top:7px;font-size:13px;font-weight:600">
       <span>Вместе</span><span class="mono">${fmt(st.ysal+st.ykat)} ₽</span></div>
     <div style="font-size:11px;color:var(--muted);margin-top:8px">Доля в общем доходе — ${Math.round((st.ysal+st.ykat)/(st.ytd||1)*100)}%</div>`;
@@ -1105,7 +1088,7 @@ function bind(){
   const ex=document.getElementById("exp");
   if(ex)ex.onclick=()=>{const w=document.getElementById("expwrap");
     const open=w.style.display==="none";w.style.display=open?"block":"none";
-    if(open)document.getElementById("expbox").value=JSON.stringify(Object.assign({},S,{patch:PATCH_V}));
+    if(open)document.getElementById("expbox").value=JSON.stringify(Object.assign({},S,{patch:PATCH_V,names:nameMap()}));
     ex.textContent=open?"Скрыть":"Выгрузить / загрузить данные"};
   const pr=document.getElementById("prn");
   if(pr)pr.onclick=()=>window.print();
@@ -1119,7 +1102,7 @@ function bind(){
   const dl=document.getElementById("dl");
   if(dl)dl.onclick=()=>{
     const name="uchet-2026-"+new Date().toISOString().slice(0,10)+".json";
-    const blob=new Blob([JSON.stringify(Object.assign({},S,{patch:PATCH_V}),null,1)],{type:"application/json"});
+    const blob=new Blob([JSON.stringify(Object.assign({},S,{patch:PATCH_V,names:nameMap()}),null,1)],{type:"application/json"});
     const url=URL.createObjectURL(blob);
     const a=document.createElement("a"); a.href=url; a.download=name;
     document.body.appendChild(a); a.click(); a.remove();
