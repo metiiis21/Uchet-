@@ -6,11 +6,10 @@
 <title>Личный учёт 2026</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#EDEEEA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1C2321" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#14161A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Учёт">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -18,31 +17,34 @@
 <body>
 <style>
   :root{
-    --ground:#EDEEEA; --card:#FAFAF8; --ink:#1C2321; --muted:#6E7873;
-    --line:#D3D6CF; --mal:#176B54; --cop:#B25B2A; --blue:#4A6FA5; --kat:#93AECC; --gold:#8A7A2E;
+    color-scheme:dark;
+    --ground:#14161A; --card:#1C1F24; --well:#0E1013; --field:#22262C; --hl:#252A31;
+    --ink:#E8EAE6; --muted:#8A918C; --line:#2C3036;
+    --rule:#5A6167; --faint:#474C52; --bar:#8A918C;
+    --mal:#2E9E7C; --cop:#D9793F; --blue:#6B92C8; --kat:#A8C4E0; --gold:#C2A94E;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);
     font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;padding:14px 12px 48px}
   .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
   .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .card{background:#fff;border:none;border-radius:7px;padding:15px 14px;margin-bottom:11px;
-    box-shadow:0 1px 2px rgba(28,35,33,.07),0 2px 10px rgba(28,35,33,.045)}
+  .card{background:var(--card);border:none;border-radius:7px;padding:15px 14px;margin-bottom:11px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 2px 10px rgba(0,0,0,.35)}
   input{font-family:ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:15px;
     color:var(--ink);text-align:right;padding:9px 10px;border:1px solid var(--line);border-radius:3px;
-    background:#fff;width:126px}
+    background:var(--field);width:126px}
   input:focus{outline:2px solid var(--mal);outline-offset:1px}
   button{font-family:inherit;cursor:pointer}
   table{width:100%;border-collapse:collapse}
   .hd{display:flex;justify-content:space-between;align-items:baseline}
   .row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-  .kpi{background:#fff;border:none;border-radius:7px;padding:13px 12px;
-    box-shadow:0 1px 2px rgba(28,35,33,.07),0 2px 10px rgba(28,35,33,.045)}
+  .kpi{background:var(--card);border:none;border-radius:7px;padding:13px 12px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 2px 10px rgba(0,0,0,.35)}
   .chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:10px}
   .chip{flex:0 0 auto;padding:6px 11px;font-size:12px;border-radius:3px;border:1px solid var(--line);
     background:transparent;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
-  .chip.has{background:#fff;color:var(--ink)}
+  .chip.has{background:var(--card);color:var(--ink)}
   .chip.on{background:var(--ink);color:var(--ground);border-color:var(--ink);font-weight:600}
   .tab{flex:0 0 auto;padding:9px 11px;background:none;border:none;border-bottom:2px solid transparent;
     color:var(--muted);font-size:11px;letter-spacing:-.02em;white-space:nowrap}
@@ -56,6 +58,11 @@
   .card.collapsed>*:not(:first-child){display:none}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   @media print{
+    :root{color-scheme:light;
+      --ground:#fff; --card:#fff; --well:#fff; --field:#fff; --hl:#f2f2f0;
+      --ink:#14161A; --muted:#555B57; --line:#CCCFCA;
+      --rule:#14161A; --faint:#AAAEA9; --bar:#555B57;
+      --mal:#176B54; --cop:#B25B2A; --blue:#4A6FA5; --kat:#93AECC; --gold:#8A7A2E}
     body{background:#fff;padding:0;font-size:11px}
     nav,button,input{display:none!important}
     .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid;margin-bottom:8px}
@@ -81,7 +88,7 @@ const MONTHS=["Январь","Февраль","Март","Апрель","Май"
 const SHORT=["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
 const FIELDS=[["bank","Банк %"],["div","Дивиденды с БР"],["salary","Зарплата"],["katya","Партнёр ПИ"],["pi","ПИ"],["other","Иное"]];
 const CURRENCY={};
-const CUR_COLOR={"RUB":"#176B54","USD / AED / EUR":"#4A6FA5","USD":"#93AECC","HKD":"#B25B2A","USD (BTC/ETH)":"#8A7A2E"};
+const CUR_COLOR={"RUB":"var(--mal)","USD / AED / EUR":"var(--blue)","USD":"var(--kat)","HKD":"var(--cop)","USD (BTC/ETH)":"var(--gold)"};
 const DEBTS=[["d1","Кредит 1"],["d2","Кредит 2"],["d3","Прочие обязательства"]];
 const INFO_DEBTS=[];
 const DATES=["31.12.2025","01.02.2026","01.03.2026","01.04.2026","01.05.2026","01.06.2026","01.07.2026","01.08.2026","01.09.2026","01.10.2026","01.11.2026","01.12.2026","31.12.2026"];
@@ -107,7 +114,7 @@ const ACCOUNTS=[
  ["a22","—","Иное","Прочее",[]]];
 const RENO_ACC=["a17","a18"];
 const GROUPS=["Брокерские","Вклады","Крипта","Ребёнок","Прочее"];
-const GC={"Брокерские":"#176B54","Вклады":"#8A7A2E","Крипта":"#B25B2A","Ребёнок":"#4A6FA5","Прочее":"#6E7873"};
+const GC={"Брокерские":"var(--mal)","Вклады":"var(--gold)","Крипта":"var(--cop)","Ребёнок":"var(--blue)","Прочее":"var(--muted)"};
 const LEVELS=[["КОМФОРТ",250000],["КОМФОРТ +",350000],["БИЗНЕС",500000],["БИЗНЕС +",700000],["LUXURY",1000000]];
 const SEED_INCOME={};
 
@@ -123,7 +130,7 @@ S.debts={"01.08.2026":{d1:4765914}};
 S.goals={a1:2800000,a6:1600000}; S.iis={dep:300000}; S.ops=[]; S.years=JSON.parse(JSON.stringify(YEARS_SEED));
 let V={tab:"obzor",month:"Август",date:"01.08.2026"};
 
-const PATCH_V=10;
+const PATCH_V=12;
 const PATCH={capital:{},debts:{},goals:{},iis:{dep:0},bank:{},div:{},wd:{},years:{}};
 function applyPatch(){
   Object.entries(PATCH.capital).forEach(([d,m])=>{S.capital[d]=S.capital[d]||{};
@@ -255,14 +262,14 @@ function barChart(R){
   const W=340,H=150,pad=16,bw=(W-pad)/12,max=Math.max(...R.map(r=>r.t),1);
   let s=`<svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">`;
   for(let i=0;i<=3;i++){const y=H-(H-10)*i/3;
-    s+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" stroke="#D3D6CF" stroke-width="1"/>`;
-    s+=`<text x="0" y="${y+3}" font-size="8" fill="#6E7873">${Math.round(max*i/3/1000)}</text>`;}
+    s+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" style="stroke:var(--line)" stroke-width="1"/>`;
+    s+=`<text x="0" y="${y+3}" font-size="8" style="fill:var(--muted)">${Math.round(max*i/3/1000)}</text>`;}
   R.forEach((r,i)=>{
     const x=pad+i*bw+2,w=bw-4;let y=H;
-    [[r.p,"#176B54"],[r.sal,"#4A6FA5"],[r.kat,"#93AECC"],[r.e,"#B25B2A"]].forEach(([v,c])=>{
+    [[r.p,"var(--mal)"],[r.sal,"var(--blue)"],[r.kat,"var(--kat)"],[r.e,"var(--cop)"]].forEach(([v,c])=>{
       const h=(H-10)*v/max;y-=h;
-      if(h>0)s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;});
-    s+=`<text x="${x+w/2}" y="${H+12}" font-size="8" fill="#6E7873" text-anchor="middle">${SHORT[i]}</text>`;});
+      if(h>0)s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" style="fill:${c}"/>`;});
+    s+=`<text x="${x+w/2}" y="${H+12}" font-size="8" style="fill:var(--muted)" text-anchor="middle">${SHORT[i]}</text>`;});
   return s+"</svg>";
 }
 function lineChart(wd,alt){
@@ -273,14 +280,14 @@ function lineChart(wd,alt){
   const X=i=>pad+(W-pad-6)*i/(wd.length-1),Y=v=>H-8-(H-24)*(v-mn)/(mx-mn||1);
   let s=`<svg viewBox="0 0 ${W} ${H+16}" style="width:100%;height:auto">`;
   for(let i=0;i<=2;i++){const v=mn+(mx-mn)*i/2,y=Y(v);
-    s+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" stroke="#D3D6CF"/>`;
-    s+=`<text x="0" y="${y+3}" font-size="8" fill="#6E7873">${(v/1e6).toFixed(1)}</text>`;}
-  s+=`<polygon fill="#176B54" fill-opacity="0.09" points="${X(0)},${H-8} ${wd.map((x,i)=>X(i)+","+Y(x.t)).join(" ")} ${X(wd.length-1)},${H-8}"/>`;
-  s+=`<polyline fill="none" stroke="#176B54" stroke-width="2" points="${wd.map((x,i)=>X(i)+","+Y(x.t)).join(" ")}"/>`;
+    s+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" style="stroke:var(--line)"/>`;
+    s+=`<text x="0" y="${y+3}" font-size="8" style="fill:var(--muted)">${(v/1e6).toFixed(1)}</text>`;}
+  s+=`<polygon style="fill:var(--mal);fill-opacity:.09" points="${X(0)},${H-8} ${wd.map((x,i)=>X(i)+","+Y(x.t)).join(" ")} ${X(wd.length-1)},${H-8}"/>`;
+  s+=`<polyline fill="none" style="stroke:var(--mal)" stroke-width="2" points="${wd.map((x,i)=>X(i)+","+Y(x.t)).join(" ")}"/>`;
   if(alt&&alt.length===wd.length)
-    s+=`<polyline fill="none" stroke="#6E7873" stroke-width="1.6" stroke-dasharray="4 3" points="${alt.map((v,i)=>X(i)+","+Y(v)).join(" ")}"/>`;
-  wd.forEach((x,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(x.t)}" r="3" fill="#176B54"/>`;
-    s+=`<text x="${X(i)}" y="${H+12}" font-size="8" fill="#6E7873" text-anchor="middle">${x.d.slice(0,5)}</text>`;});
+    s+=`<polyline fill="none" style="stroke:var(--muted)" stroke-width="1.6" stroke-dasharray="4 3" points="${alt.map((v,i)=>X(i)+","+Y(v)).join(" ")}"/>`;
+  wd.forEach((x,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(x.t)}" r="3" style="fill:var(--mal)"/>`;
+    s+=`<text x="${X(i)}" y="${H+12}" font-size="8" style="fill:var(--muted)" text-anchor="middle">${x.d.slice(0,5)}</text>`;});
   return s+"</svg>";
 }
 function scale(avg,avgP,budgetMode){
@@ -290,8 +297,8 @@ function scale(avg,avgP,budgetMode){
       <div class="mono" style="font-size:14px;font-weight:700;text-align:center;letter-spacing:-.02em">${fmt(avg)}</div>
       <div style="font-size:8px;color:var(--muted);text-align:center;letter-spacing:.06em">₽ / МЕС</div>
       <div style="width:1px;height:8px;background:var(--ink);margin:2px auto 0"></div></div>
-    <div style="position:relative;height:10px;background:#fff;border:1px solid var(--line)">
-      <div style="position:absolute;inset:0 auto 0 0;width:${p(avg)}%;background:var(--ink)"></div>
+    <div style="position:relative;height:10px;background:var(--well);border:1px solid var(--line)">
+      <div style="position:absolute;inset:0 auto 0 0;width:${p(avg)}%;background:var(--bar)"></div>
       <div style="position:absolute;inset:0 auto 0 0;width:${p(avgP)}%;background:var(--mal)"></div>`;
   LEVELS.forEach(([,m])=>{t+=`<div style="position:absolute;left:${p(m)}%;top:-3px;bottom:-3px;width:1px;background:var(--muted)"></div>`});
   t+=`</div>`;
@@ -301,7 +308,7 @@ function scale(avg,avgP,budgetMode){
       <div style="font-size:8px;letter-spacing:.06em;white-space:nowrap;color:${avg>=m?"var(--ink)":"var(--muted)"};font-weight:${avg>=m?700:400}">${n}</div>
       <div class="mono" style="font-size:8px;color:var(--muted)">${m/1000}к</div></div>`;});
   t+=`</div><div class="lg" style="flex-direction:column;gap:4px;align-items:flex-start">
-    <span><i class="sw" style="background:var(--ink)"></i>${budgetMode?"всего дошло до бюджета":"весь доход"} — <b class="mono" style="color:var(--ink)">${fmt(avg)} ₽/мес</b></span>
+    <span><i class="sw" style="background:var(--bar)"></i>${budgetMode?"всего дошло до бюджета":"весь доход"} — <b class="mono" style="color:var(--ink)">${fmt(avg)} ₽/мес</b></span>
     <span><i class="sw" style="background:var(--mal)"></i>${budgetMode?"из них с брокерских счетов на карту":"из них пассивный доход"} — <b class="mono" style="color:var(--ink)">${fmt(avgP)} ₽/мес</b></span></div>`;
   return t;
 }
@@ -366,7 +373,7 @@ function render(){
         <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif">${["I","II","III","IV"][q]} кв.</td>
         <td style="text-align:right;color:var(--mal)">${fmt(sm("p"))}</td><td style="text-align:right">${fmt(sm("sal"))}</td><td style="text-align:right;color:var(--muted)">${fmt(sm("kat"))}</td>
         <td style="text-align:right">${fmt(sm("e"))}</td><td style="text-align:right;font-weight:600">${fmt(sm("t"))}</td></tr>`});
-    h+=`<tr style="border-top:2px solid var(--ink)"><td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Год</td>
+    h+=`<tr style="border-top:2px solid var(--rule)"><td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Год</td>
       <td style="text-align:right;color:var(--mal)">${fmt(st.yp)}</td>
       <td style="text-align:right">${fmt(st.f.reduce((s,r)=>s+r.sal,0))}</td>
       <td style="text-align:right;color:var(--muted)">${fmt(st.f.reduce((s,r)=>s+r.kat,0))}</td>
@@ -398,7 +405,7 @@ function render(){
         <input inputmode="numeric" data-f="${k}" value="${v===undefined||v===""?"":fmt(v)}" placeholder="0"></div>`});
     h+=`</div><div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px" class="mono">
       ${dl("Итого % и БР","d-p",r.p,"var(--mal)")}${dl("Итого Зарплата + Партнёр","d-a",r.a)}${dl("Итого дополнительно","d-e",r.e)}
-      <div style="display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:8px;padding-top:8px;font-weight:700;font-size:16px">
+      <div style="display:flex;justify-content:space-between;border-top:2px solid var(--rule);margin-top:8px;padding-top:8px;font-weight:700;font-size:16px">
         <span style="font-family:'Inter',system-ui,sans-serif">Итого</span><span id="d-t">${fmt(r.t)} ₽</span></div></div>
       <div class="row" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
         <label style="flex:1;font-size:13px;color:var(--mal)">Из них выведено на карту</label>
@@ -418,11 +425,11 @@ function render(){
           <th style="text-align:left;font-weight:500;padding-bottom:5px">МЕСЯЦ</th>
           <th style="text-align:right;font-weight:500;padding-bottom:5px;color:var(--mal)">ПАССИВНЫЙ</th>
           <th style="text-align:right;font-weight:500;padding-bottom:5px">ВСЕГО</th></tr>`;
-    st.R.forEach(x=>{h+=`<tr data-m="${x.m}" style="border-top:1px solid var(--line);${x.m===V.month?"background:#fff":""}">
+    st.R.forEach(x=>{h+=`<tr data-m="${x.m}" style="border-top:1px solid var(--line);${x.m===V.month?"background:var(--hl)":""}">
       <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif">${x.m}</td>
       <td style="text-align:right;color:var(--mal);font-size:11px">${x.p?fmt(x.p):""}</td>
       <td style="text-align:right;font-weight:600">${x.t?fmt(x.t):"—"}</td></tr>`});
-    h+=`<tr style="border-top:2px solid var(--ink)">
+    h+=`<tr style="border-top:2px solid var(--rule)">
       <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">За год</td>
       <td style="text-align:right;color:var(--mal);font-size:11px">${fmt(st.yp)}</td>
       <td style="text-align:right;font-weight:700">${fmt(st.ytd)}</td></tr>`;
@@ -446,7 +453,7 @@ function render(){
           <input inputmode="numeric" data-acc="${a[0]}" value="${v===undefined?"":fmt(v)}" placeholder="0"></div>`});
       h+=`</div>`});
     const ds=debtSum(V.date);
-    h+=`<div style="margin-top:22px;border-top:2px solid var(--ink);padding-top:14px">
+    h+=`<div style="margin-top:22px;border-top:2px solid var(--rule);padding-top:14px">
       <div class="hd" style="margin-bottom:10px"><span class="eyebrow" style="color:var(--cop)">Обязательства</span>
       <span class="mono" id="d-tot" style="font-size:11px;color:var(--muted)">${ds?"− "+fmt(ds):"—"}</span></div>`;
     DEBTS.forEach(x=>{const v=(S.debts[V.date]||{})[x[0]];
@@ -495,8 +502,8 @@ function fiCard(st){
   return `<div class="card"><div class="eyebrow">Финансовая независимость</div>
     <div style="display:flex;align-items:center;gap:8px;margin:8px 0 14px">
       <span style="font-size:11px;color:var(--muted)">цель</span>
-      <select id="goal" style="flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:#fff;font-size:12px;font-family:inherit;color:var(--ink)">${opts}</select></div>
-    <div style="position:relative;height:12px;background:#fff;border:1px solid var(--line);margin-bottom:6px">
+      <select id="goal" style="flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--field);font-size:12px;font-family:inherit;color:var(--ink)">${opts}</select></div>
+    <div style="position:relative;height:12px;background:var(--field);border:1px solid var(--line);margin-bottom:6px">
       <div style="position:absolute;inset:0 auto 0 0;width:${Math.min(100,cov*100)}%;background:var(--mal)"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:14px">
       <span>пассив <b class="mono" style="color:var(--ink)">${fmt(passMo)} ₽/мес</b></span>
@@ -525,7 +532,7 @@ function flowCard(st){
   const tot=st.yp||1,w=st.ywd/tot*100;
   return `<div class="card"><div class="eyebrow">Пассивный доход: куда он идёт</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">${st.anyW?"по внесённым данным":"не заполнено — весь доход считается выведенным"}</div>
-    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:var(--well)">
       <div style="width:${w}%;background:var(--mal)"></div>
       <div style="width:${100-w}%;background:var(--kat)"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px">
@@ -550,7 +557,7 @@ function expCard(st){
   const w=Math.max(0,Math.min(100,regMo/(budMo||1)*100));
   return `<div class="card"><div class="eyebrow">Расходы и норма сбережений</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">${st.nexp?"по внесённым расходам · "+st.nexp+" мес.":"расчётно · сравнение с доходом, дошедшим до бюджета"}</div>
-    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:var(--well)">
       <div style="width:${w}%;background:var(--cop)"></div>
       <div style="width:${Math.max(0,100-w)}%;background:var(--mal)"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px">
@@ -637,7 +644,7 @@ function monthsCard(R){
   let h=`<div class="card"><div class="eyebrow">Доходы по месяцам</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">длина полосы — доля от лучшего месяца</div>`;
   R.forEach((r,i)=>{
-    if(!r.t){h+=`<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--line)">
+    if(!r.t){h+=`<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--faint)">
       <span>${MONTHS[i]}</span><span>—</span></div>`;return;}
     h+=`<div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
@@ -661,7 +668,7 @@ function mortCard(){
   const cover=num((S.capital[d]||{}).a1)+num((S.capital[d]||{}).a6);
   return `<div class="card"><div class="eyebrow">Ипотека ${m.bank}</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">договор ${m.num} от ${m.from} · ${String(m.rate).replace(".",",")}% · ПСК ${String(m.psk).replace(".",",")}%</div>
-    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:var(--well)">
       <div style="width:${w}%;background:var(--mal)"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:14px">
       <span>погашено ${w.toFixed(1).replace(".",",")}%</span><span>платёж ${m.done} из ${m.term}</span></div>
@@ -675,7 +682,7 @@ function mortCard(){
     ${fl("Осталось выплатить",fmt(rest)+" ₽")}
     ${fl("Платёж в месяц",fmt(m.pay)+" ₽")}
     ${fl("Последний платёж",m.endDate+" · "+m.left+" мес.")}
-    <div style="border-top:2px solid var(--ink);margin-top:10px;padding-top:9px">
+    <div style="border-top:2px solid var(--rule);margin-top:10px;padding-top:9px">
       ${fl("Накоплено на ипотечных счетах",fmt(cover)+" ₽","var(--mal)")}
       ${fl("Покрытие долга",Math.round(cover/m.bal*100)+"%",cover>=m.bal?"var(--mal)":"var(--cop)")}</div>
     <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Гасить досрочно невыгодно: ипотечные счета приносят купонный доход против ставки по кредиту.</div></div>`;
@@ -684,7 +691,10 @@ const IIS={limit:400000,rate:0.13,acc:"ИИС"};
 const DEADLINES=[];
 function deadlineCard(){
   const now=new Date();
-  const L=DEADLINES.map(x=>({...x,days:Math.round((new Date(x.d)-now)/86400000)}))
+  const extra=depList().filter(x=>x.pending&&x.dueISO).map(x=>({d:x.dueISO,
+    t:"Налог с процентов по вкладам за "+x.y,
+    s:fmt(x.tax)+" ₽ · уведомление придёт в личный кабинет ФНС"}));
+  const L=DEADLINES.concat(extra).map(x=>({...x,days:Math.round((new Date(x.d)-now)/86400000)}))
     .filter(x=>x.days>-30).sort((a,b)=>a.days-b.days);
   if(!L.length)return "";
   let h=`<div class="card"><div class="eyebrow">Ближайшие сроки</div>`;
@@ -719,7 +729,7 @@ function iisCard(){
   const w=Math.min(100,dep/IIS.limit*100);
   return `<div class="card"><div class="eyebrow" style="color:${dep?"var(--ink)":"var(--cop)"}">Вычет по ИИС · 2026</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">${IIS.acc} · срок — до 31 декабря</div>
-    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:#fff">
+    <div style="display:flex;height:12px;margin-bottom:6px;border:1px solid var(--line);background:var(--well)">
       <div style="width:${w}%;background:var(--mal)"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px">
       <span>внесено ${fmt(dep)} ₽</span><span>лимит ${fmt(IIS.limit)} ₽</span></div>
@@ -751,7 +761,7 @@ function taxCard(st){
       <div style="font-size:11px;color:var(--muted);padding:4px 0">Уже удержано брокерами</div>
       ${rows}
       ${fl("Всего удержано",fmt(paid)+" ₽","var(--mal)")}</div>
-    <div style="border-top:2px solid var(--ink);margin-top:10px;padding-top:9px">
+    <div style="border-top:2px solid var(--rule);margin-top:10px;padding-top:9px">
       ${fl("Спишется в январе 2027","≈ "+fmt(left)+" ₽","var(--cop)")}
       ${fl("Пассивный доход после налога",fmt(ann-due)+" ₽ · "+fmt((ann-due)/12)+" ₽/мес","var(--mal)")}</div>
     <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4">Второй брокер за 2026 год пока не удержал ничего — он списывает налог в январе или при выводе денег. Удержание по третьему брокеру — ${TAX.note}. Держите на счетах остаток к началу года, иначе брокер удержит из первых поступивших купонов. Расчёт приблизительный: реальная база зависит от сделок с прибылью и убытком.</div></div>`;
@@ -833,7 +843,7 @@ function brokerCard(){
     h+=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">
       <span style="font-size:11px">${y}${y==="2026"?" · "+c26+" мес.":""}</span>
       <span class="mono" style="font-size:11px;color:var(--muted)">${y==="2026"?"состав не разделён":Math.round(c/t*100)+" % купоны"}</span></div>
-      <div style="display:flex;height:9px;margin-top:4px;border-radius:2px;overflow:hidden;background:#fff">
+      <div style="display:flex;height:9px;margin-top:4px;border-radius:2px;overflow:hidden;background:var(--well)">
         ${y==="2026"?seg(t,"var(--kat)"):seg(c,"var(--mal)")+seg(dv,"var(--cop)")+seg(f,"var(--gold)")}</div>`;});
   h+=`</div>
     <div class="lg" style="margin-top:10px">
@@ -851,40 +861,90 @@ function brokerCard(){
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11.5px"><b class="mono" style="font-size:10px;color:var(--muted)">${code}</b> ${name}</span>
         <span class="mono" style="font-size:11.5px;font-weight:600">${fmt(v)}</span></div>
-      <div style="height:6px;margin-top:3px;border-radius:2px;background:#fff;overflow:hidden">
+      <div style="height:6px;margin-top:3px;border-radius:2px;background:var(--well);overflow:hidden">
         <div style="width:${v/tm*100}%;height:100%;background:var(--mal)"></div></div></div>`;});
   h+=`<div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.45">Зарубежный брокер пересчитан из долларов по среднегодовому курсу ЦБ. Счета — и — в трекере не заведены, их суммы в список не попали.</div></div>`;
+  return h;
+}
+const DEP_RULE={rate:0.13,step:2400000,
+  free:{"2022":null,"2023":150000,"2024":210000,"2025":210000,"2026":null},
+  note:{"2022":"доход за 2021–2022 освобождён от НДФЛ","2023":"вычет 1 млн × 15% — ставка ЦБ",
+        "2024":"вычет 1 млн × 21% — ставка ЦБ","2025":"вычет 1 млн × 21% — ставка ЦБ"},
+  due:{"2025":["2026-12-01","1 декабря 2026"]}};
+function depYear(y){
+  const inc=num((S.years[y]||{}).dep); if(!inc)return null;
+  const free=DEP_RULE.free[y];
+  const base=(free===null||free===undefined)?0:Math.max(0,inc-free);
+  const calc=Math.round(base*DEP_RULE.rate);
+  const stored=num((S.years[y]||{}).deptax);
+  const due=DEP_RULE.due[y];
+  return{y,inc,free,base,tax:stored||calc,pending:!stored&&calc>0,
+    note:DEP_RULE.note[y]||"",due:due?due[1]:null,dueISO:due?due[0]:null};
+}
+function depList(){return Object.keys(S.years||{}).sort().map(depYear).filter(Boolean)}
+function depCard(){
+  const L=depList(); if(!L.length)return "";
+  const tInc=L.reduce((s,x)=>s+x.inc,0), tTax=L.reduce((s,x)=>s+x.tax,0);
+  const due=L.find(x=>x.pending&&x.due);
+  const mx=Math.max(...L.map(x=>x.inc),1);
+  let h=`<div class="card"><div class="eyebrow">Проценты по вкладам и налог</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 12px;line-height:1.45">По данным личного кабинета ФНС. В справках 2‑НДФЛ этих сумм нет — банки отчитываются отдельно, налог приходит уведомлением.</div>`;
+  L.forEach(x=>{
+    h+=`<div style="border-top:1px solid var(--line);padding:9px 0">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;font-weight:${x.pending?600:400}">${x.y}</span>
+        <span class="mono" style="font-size:13px;font-weight:600">${fmt(x.inc)} ₽</span></div>
+      <div style="height:7px;margin:5px 0 4px;border-radius:2px;background:var(--well);overflow:hidden">
+        <div style="width:${x.inc/mx*100}%;height:100%;background:var(--gold)"></div></div>
+      <div class="mono" style="font-size:9.5px;color:${x.pending?"var(--cop)":"var(--muted)"}">
+        ${x.tax?(x.pending?"к уплате ":"налог ")+fmt(x.tax)+" ₽":"без налога"}${x.note?" · "+x.note:""}</div></div>`;});
+  h+=`<div style="border-top:2px solid var(--rule);margin-top:6px;padding-top:9px">
+    ${fl("Получено процентов",fmt(tInc)+" ₽","var(--gold)")}
+    ${fl("Налога начислено",fmt(tTax)+" ₽","var(--cop)")}
+    ${fl("Эффективная ставка",(tTax/tInc*100).toFixed(1).replace(".",",")+"%")}</div>`;
+  if(due)h+=`<div style="border-top:1px solid var(--line);margin-top:10px;padding-top:9px;font-size:11px;line-height:1.5">
+    <b>К уплате до ${due.due}:</b> ${fmt(due.tax)} ₽ за ${due.y} год. Расчёт: ${fmt(due.inc)} − ${fmt(due.free)} вычета = ${fmt(due.base)} база × 13%. Ставка 15% включилась бы на доходе свыше ${fmt(DEP_RULE.step)} ₽.</div>`;
+  h+=`<div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.45">Вычет = 1 млн ₽ × максимальная ключевая ставка на 1‑е число месяца в этом году. Где налог уже начислен ФНС, показана её сумма; где ещё нет — расчёт по этой же формуле.</div></div>`;
   return h;
 }
 function yearsTab(){
   const st=stats();
   S.years=S.years||{};
   const Y=Object.keys(S.years).concat(["2026"]).filter((v,i,a)=>a.indexOf(v)===i).sort();
-  const cur={inc:st.ytd,pas:st.yp,cap:st.now.t,mon:st.f.length};
-  const val=y=>y==="2026"?{inc:cur.inc,tax:0,cap:cur.cap,pas:cur.pas}
-    :{inc:num((S.years[y]||{}).inc),tax:num((S.years[y]||{}).tax),cap:num((S.years[y]||{}).cap),pas:num((S.years[y]||{}).pas)};
-  const mx=Math.max(...Y.map(y=>val(y).inc),1);
+  const bank26=st.f.reduce((s,r)=>s+num((S.income[r.m]||{}).bank),0);
+  const cur={inc:st.ytd,pas:st.yp-bank26,dep:bank26,cap:st.now.t,mon:st.f.length};
+  const val=y=>y==="2026"?{inc:cur.inc,tax:0,cap:cur.cap,pas:cur.pas,dep:cur.dep,tot:cur.inc}
+    :(()=>{const d=num((S.years[y]||{}).dep),i=num((S.years[y]||{}).inc);
+      return{inc:i,tax:num((S.years[y]||{}).tax),cap:num((S.years[y]||{}).cap),pas:num((S.years[y]||{}).pas),dep:d,deptax:num((S.years[y]||{}).deptax),tot:i+d};})();
+  const mx=Math.max(...Y.map(y=>val(y).tot),1);
   let h=`<div class="card"><div class="eyebrow">Доход по годам</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 14px">2022–2025 — по справкам ФНС · 2026 — из дашборда за ${cur.mon} мес.</div>`;
   Y.forEach(y=>{const v=val(y);
     h+=`<div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:12px;font-weight:${y==="2026"?600:400}">${y}${y==="2026"?" · неполный":""}</span>
-        <span class="mono" style="font-size:13px;font-weight:600">${fmt(v.inc)} ₽</span></div>
-      <div style="display:flex;height:9px;margin:5px 0 4px;border-radius:2px;overflow:hidden;background:#fff">
+        <span class="mono" style="font-size:13px;font-weight:600">${fmt(v.tot)} ₽</span></div>
+      <div style="display:flex;height:9px;margin:5px 0 4px;border-radius:2px;overflow:hidden;background:var(--well)">
         <div style="width:${v.pas?v.pas/mx*100:0}%;background:var(--mal)"></div>
-        <div style="width:${Math.max(0,(v.inc-(v.pas||0))/mx*100)}%;background:var(--blue)"></div></div>
+        <div style="width:${v.dep?v.dep/mx*100:0}%;background:var(--gold)"></div>
+        <div style="width:${Math.max(0,(v.tot-(v.pas||0)-(v.dep||0))/mx*100)}%;background:var(--blue)"></div></div>
       <div class="mono" style="font-size:9.5px;color:var(--muted)">
-        ${v.pas?`<span style="color:var(--mal)">●</span> пассивный ${fmt(v.pas)}  `:""}
+        ${(v.pas||v.dep)?`<span style="color:var(--mal)">●</span> пассивный ${fmt((v.pas||0)+(v.dep||0))}  `:""}
+        ${(v.dep&&v.pas)?`<span style="color:var(--gold)">●</span> вклады ${fmt(v.dep)}  `:""}${(v.dep&&!v.pas)?`<span style="color:var(--gold)">●</span> всё из вкладов  `:""}
         ${v.tax?`НДФЛ ${fmt(v.tax)}  `:""}${v.cap?`капитал ${fmt(v.cap)}`:""}</div></div>`;});
-  h+=`<div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4">Зелёным — пассивный доход, синим — остальное. За 2024 и 2025 пассивный доход посчитан по брокерским отчётам, за 2022–2023 его нет: в справках ФНС он идёт общей суммой.</div></div>`;
+  h+=`<div class="lg" style="margin-top:8px">
+      <span><i class="sw" style="background:var(--mal)"></i>купоны и дивиденды</span>
+      <span><i class="sw" style="background:var(--gold)"></i>проценты по вкладам</span>
+      <span><i class="sw" style="background:var(--blue)"></i>зарплата и прочее</span></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.45">За 2024–2025 купоны и дивиденды посчитаны по брокерским отчётам, проценты по вкладам — по данным ФНС. В справках 2‑НДФЛ процентов по вкладам нет, поэтому они прибавлены к сумме года сверху.</div></div>`;
+  h+=depCard();
   h+=brokerCard();
   h+=`<div class="card"><div class="eyebrow">Заполнить годы</div>
     <div style="font-size:11px;color:var(--muted);margin:4px 0 12px">2026 считается сам, править не нужно</div>`;
   Y.filter(y=>y!=="2026").forEach(y=>{
     const v=S.years[y]||{};
     let rows="";
-    [["inc","Доход"],["tax","НДФЛ"],["pas","Пассивный доход"],["cap","Капитал на 31.12"]].forEach(([k,l])=>{
+    [["inc","Доход"],["tax","НДФЛ"],["pas","Пассивный доход"],["dep","Проценты по вкладам"],["deptax","Налог с вкладов"],["cap","Капитал на 31.12"]].forEach(([k,l])=>{
       rows+=`<div class="row"><label style="flex:1;font-size:12px">${l}</label>
         <input inputmode="numeric" data-yr="${y}" data-fld="${k}" style="width:130px" value="${v[k]?fmt(v[k]):""}" placeholder="0"></div>`;});
     h+=`<div style="border-top:1px solid var(--line);padding:9px 0">
@@ -903,7 +963,7 @@ function yearsTab(){
 function journalTab(){
   const J=(S.ops||[]).slice().sort((a,b)=>b.d.localeCompare(a.d));
   const opts=ACCOUNTS.map(a=>`<option value="${a[0]}">${esc(a[2])}</option>`).join("");
-  const sel='width:170px;padding:8px;border:1px solid var(--line);border-radius:3px;background:#fff;font-size:12px;font-family:inherit;color:var(--ink)';
+  const sel='width:170px;padding:8px;border:1px solid var(--line);border-radius:3px;background:var(--field);font-size:12px;font-family:inherit;color:var(--ink)';
   let h=`<div class="card"><div class="eyebrow">Новая операция</div>
     <div style="margin-top:12px">
       <div class="row"><label style="flex:1;font-size:13px">Дата</label>
@@ -980,7 +1040,7 @@ function goalsTab(){
           <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a[2])}</div>
           <div style="font-size:10px;color:var(--muted)">${esc(a[1])} · ${fmt(v)} ₽</div></div>
         <input inputmode="numeric" data-goal="${a[0]}" style="width:118px" value="${S.goals[a[0]]?fmt(S.goals[a[0]]):""}" placeholder="цель"></div>
-      <div style="height:8px;background:#fff;border:1px solid var(--line);margin-top:7px;display:${g?"block":"none"}">
+      <div style="height:8px;background:var(--field);border:1px solid var(--line);margin-top:7px;display:${g?"block":"none"}">
         <div id="gb-${a[0]}" style="height:100%;width:${pc}%;background:${pc>=100?"var(--mal)":"var(--blue)"}"></div></div>
       <div id="gt-${a[0]}" style="font-size:10px;color:var(--muted);margin-top:3px" class="mono">${g?`${Math.round(pc)}% · осталось ${fmt(Math.max(0,g-v))} ₽`:""}</div></div>`;});
   return h+`</div>`;
@@ -1011,7 +1071,7 @@ function pnlCard(){
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)" class="mono">
         <span>переоценка ${x.rev>=0?"+":"−"}${fmt(Math.abs(x.rev))}</span>
         <span>доход по журналу ${x.inc?"+"+fmt(x.inc):"—"}</span></div></div>`;});
-  h+=`<div style="border-top:2px solid var(--ink);padding-top:10px">
+  h+=`<div style="border-top:2px solid var(--rule);padding-top:10px">
     ${fl("Доход по Журналу (купоны/дивиденды)","+ "+fmt(tI)+" ₽","var(--mal)")}
     ${fl("Переоценка бумаг",(tR>=0?"+ ":"− ")+fmt(Math.abs(tR))+" ₽","var(--cop)")}
     ${fl("Итого результат",(tI+tR>=0?"+ ":"− ")+fmt(Math.abs(tI+tR))+" ₽")}</div>
@@ -1036,7 +1096,7 @@ function retCard(){
         <div style="font-size:9px;color:var(--muted)">доход по журналу ${fmt(x.inc)} ₽${x.dep?" · внешний поток "+fmt(x.dep):""}</div></td>
       <td style="text-align:right;font-size:10px;color:var(--muted);white-space:nowrap">${fmt(x.v0/1000)}→${fmt(x.v1/1000)}</td>
       <td style="text-align:right;color:${c};font-weight:600;white-space:nowrap">${x.r>0?"+":""}${String(x.r).replace(".",",")}%</td></tr>`});
-  h+=`<tr style="border-top:2px solid var(--ink)">
+  h+=`<tr style="border-top:2px solid var(--rule)">
     <td style="padding:7px 0;font-family:'Inter',system-ui,sans-serif;font-weight:600">Всего<div style="font-size:9px;color:var(--muted);font-weight:400">доход по журналу ${fmt(tinc)} ₽</div></td>
     <td style="text-align:right;font-size:10px;color:var(--muted)">${fmt(tv0/1000)}→${fmt(tv1/1000)}</td>
     <td style="text-align:right;font-weight:700;color:${tr>0?"var(--mal)":"var(--cop)"}">${tr>0?"+":""}${tr.toFixed(1).replace(".",",")}%</td></tr></table>
@@ -1054,7 +1114,7 @@ function split(st){
     <span style="text-align:right"><span class="mono" style="font-weight:600">${fmt(v)} ₽</span>
     <span class="mono" style="font-size:10px;color:var(--muted);display:block">${fmt(v/n)} / мес · ${Math.round(v/tot*100)}%</span></span></div>`;
   return bar+line("Моя зарплата",st.ysal,"var(--blue)")+line("Партнёр ПИ",st.ykat,"var(--kat)")+
-    `<div style="display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:4px;padding-top:7px;font-size:13px;font-weight:600">
+    `<div style="display:flex;justify-content:space-between;border-top:2px solid var(--rule);margin-top:4px;padding-top:7px;font-size:13px;font-weight:600">
       <span>Вместе</span><span class="mono">${fmt(st.ysal+st.ykat)} ₽</span></div>
     <div style="font-size:11px;color:var(--muted);margin-top:8px">Доля в общем доходе — ${Math.round((st.ysal+st.ykat)/(st.ytd||1)*100)}%</div>`;
 }
