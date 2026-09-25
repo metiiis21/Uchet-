@@ -24,7 +24,7 @@
     --mal:#2E9E7C; --cop:#D9793F; --blue:#6B92C8; --kat:#A8C4E0; --gold:#C2A94E;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--ground);color:var(--ink);
+  body{margin:0 auto;max-width:720px;background:var(--ground);color:var(--ink);
     font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;padding:14px 12px 48px}
   .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
   .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -73,7 +73,8 @@
   @media (pointer:coarse){
     input,select,textarea{font-size:16px!important}
   }
-  body{padding:calc(14px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
+  body{margin:0 auto;max-width:720px;
+       padding:calc(14px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
        calc(48px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
        -webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
   @media (display-mode:standalone){
@@ -128,7 +129,7 @@ ACCOUNTS.forEach(a=>a[4].forEach((v,i)=>{if(v!==null)S.capital[DATES[i]][a[0]]=v
 S.goal=100000;
 S.debts={"01.08.2026":{d1:4765914}};
 S.goals={a1:2800000,a6:1600000}; S.iis={dep:300000}; S.ops=[]; S.years=JSON.parse(JSON.stringify(YEARS_SEED));
-let V={tab:"obzor",month:"Август",date:"01.08.2026"};
+let V={tab:"obzor",month:"Август",date:"01.08.2026",expOpen:false};
 
 const PATCH_V=12;
 const PATCH={capital:{},debts:{},goals:{},iis:{dep:0},bank:{},div:{},wd:{},years:{}};
@@ -167,6 +168,7 @@ function save(){
     try{localStorage.setItem(KEY,t); ok=true;}catch(e){}
     try{await window.storage.set(KEY,t); ok=true;}catch(e){}
     if(ok)flash(); else warn();
+    syncWrite(false);
   },400);
 }
 function warn(){const el=document.getElementById("saved");if(!el)return;
@@ -191,6 +193,7 @@ function applyImport(text){
   S.iis=d.iis||{}; S.ops=d.ops||[]; S.years=d.years||JSON.parse(JSON.stringify(YEARS_SEED));
   S.patch=d.patch||0;
   if(d.names)S.names=d.names;
+  if(d.meta)S.meta=d.meta;
   applyNames();
   if((S.patch||0)<PATCH_V)applyPatch();
   save(); render();
@@ -333,6 +336,9 @@ function render(){
     <nav style="display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch">
       ${[["obzor","Обзор"],["an","Анализ"],["income","Доходы"],["cap","Капитал"],["log","Журнал"],["goals","Цели"],["yr","Годы"]].map(([k,l])=>
         `<button class="tab ${V.tab===k?"on":""}" data-tab="${k}">${l}</button>`).join("")}</nav>`;
+  if(syncMsgKind==="conflict")h+=`<div style="border:1px solid var(--gold);border-radius:6px;padding:10px 12px;margin-bottom:11px">
+    <div style="font-size:12px;font-weight:600;color:var(--gold)">Расхождение с файлом синхронизации</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45">${esc(syncMsg)} Откройте «Анализ» → «Выгрузить / загрузить данные» и выберите, какую копию оставить.</div></div>`;
 
   if(V.tab==="obzor"){
     h+=deadlineCard()+todoCard()+checks()+iisCard()+dedCard();
@@ -381,7 +387,7 @@ function render(){
       <td style="text-align:right;font-weight:700">${fmt(st.ytd)}</td></tr></table></div>
       <button id="prn" style="width:100%;padding:10px;margin-bottom:8px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:12px">Распечатать или сохранить в PDF</button>
       <button id="exp" style="width:100%;padding:10px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:12px">Выгрузить / загрузить данные</button>
-      <div id="expwrap" style="display:none">
+      <div id="expwrap" style="display:${V.expOpen?"block":"none"}">${syncCard()}
         <div style="display:flex;gap:8px;margin-top:8px">
           <button id="dl" style="flex:1;padding:10px;background:var(--mal);border:1px solid var(--mal);border-radius:3px;color:#fff;font-size:12px">Скачать файл</button>
           <button id="ul" style="flex:1;padding:10px;background:none;border:1px solid var(--line);border-radius:3px;color:var(--ink);font-size:12px">Загрузить файл</button></div>
@@ -1144,8 +1150,139 @@ function bindCollapse(){
     };
   });
 }
+
+/* ---------- синхронизация через файл в облачной папке ----------
+   Компьютер (Chrome/Edge): держим ссылку на файл и пишем в него при каждом
+   сохранении. Телефон: File System Access API не поддерживается, поэтому там
+   остаётся обычная загрузка файла — но из той же облачной папки.
+   Защита от конфликта: у каждой копии есть отметка времени; прежде чем
+   перезаписать файл, проверяем, не изменил ли его кто-то другой.        */
+const SYNC_STORE="uchet-sync";
+let syncHandle=null, syncBusy=false, syncNeedPerm=false, syncMsg="", syncMsgKind="";
+const syncOK=()=>typeof window!=="undefined"&&!!window.showSaveFilePicker&&window.isSecureContext;
+
+function idbOpen(){return new Promise((res,rej)=>{
+  const r=indexedDB.open(SYNC_STORE,1);
+  r.onupgradeneeded=()=>{r.result.createObjectStore("h")};
+  r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});}
+async function idbGet(k){try{const db=await idbOpen();return await new Promise((res,rej)=>{
+  const q=db.transaction("h","readonly").objectStore("h").get(k);
+  q.onsuccess=()=>res(q.result||null); q.onerror=()=>rej(q.error);});}catch(e){return null}}
+async function idbPut(k,v){try{const db=await idbOpen();await new Promise((res,rej)=>{
+  const q=db.transaction("h","readwrite").objectStore("h").put(v,k);
+  q.onsuccess=res; q.onerror=()=>rej(q.error);});}catch(e){}}
+async function idbDel(k){try{const db=await idbOpen();await new Promise((res,rej)=>{
+  const q=db.transaction("h","readwrite").objectStore("h").delete(k);
+  q.onsuccess=res; q.onerror=()=>rej(q.error);});}catch(e){}}
+
+function devId(){let d=null;
+  try{d=localStorage.getItem("uchet-dev")}catch(e){}
+  if(!d){d=Math.random().toString(36).slice(2,7);try{localStorage.setItem("uchet-dev",d)}catch(e){}}
+  return d;}
+const hhmm=ms=>{const d=new Date(ms);
+  return d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"})+" "+
+         d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})};
+function syncSay(k,t){syncMsgKind=k;syncMsg=t;}
+
+function syncPayload(){
+  S.meta=S.meta||{};
+  S.meta.savedAt=Date.now(); S.meta.device=devId();
+  return JSON.stringify(Object.assign({},S,{patch:PATCH_V,names:nameMap()}),null,1);
+}
+async function syncWrite(force){
+  if(!syncHandle||syncBusy)return; syncBusy=true;
+  try{
+    if(!force){
+      const f=await syncHandle.getFile();
+      if(f.size){let rem=null; try{rem=JSON.parse(await f.text())}catch(e){}
+        const rt=(rem&&rem.meta&&rem.meta.savedAt)||0;
+        const seen=(S.meta&&S.meta.lastSeen)||0;
+        if(rt>seen){syncBusy=false;
+          syncSay("conflict","Файл изменён на другом устройстве "+hhmm(rt)+".");
+          V.expOpen=true; render(); return;}}
+    }
+    const txt=syncPayload();
+    const w=await syncHandle.createWritable(); await w.write(txt); await w.close();
+    S.meta.lastSeen=S.meta.savedAt;
+    syncSay("ok","записано "+hhmm(S.meta.savedAt));
+  }catch(e){syncSay("err","не удалось записать: "+e.message);}
+  syncBusy=false;
+}
+async function syncRead(force){
+  if(!syncHandle)return;
+  try{
+    const f=await syncHandle.getFile();
+    if(!f.size){await syncWrite(true);return;}
+    const txt=await f.text(); const d=JSON.parse(txt);
+    const rt=(d.meta&&d.meta.savedAt)||0, lt=(S.meta&&S.meta.savedAt)||0;
+    if(!force&&rt<=lt){syncSay("ok","здесь данные свежее или те же");render();return;}
+    if(applyImport(txt)){S.meta=S.meta||{}; S.meta.lastSeen=rt;
+      syncSay("ok","загружено из файла, отметка "+hhmm(rt)); save();}
+    else syncSay("err","файл не читается как выгрузка учёта");
+  }catch(e){syncSay("err","не удалось прочитать: "+e.message);}
+  render();
+}
+async function syncLink(){
+  if(!syncOK())return;
+  try{
+    const h=await window.showSaveFilePicker({suggestedName:"uchet-sync.json",
+      types:[{description:"Данные учёта",accept:{"application/json":[".json"]}}]});
+    syncHandle=h; syncNeedPerm=false; await idbPut("handle",h);
+    const f=await h.getFile();
+    if(f.size)await syncRead(true); else await syncWrite(true);
+    render();
+  }catch(e){}
+}
+async function syncGrant(){
+  if(!syncHandle)return;
+  try{const p=await syncHandle.requestPermission({mode:"readwrite"});
+    if(p==="granted"){syncNeedPerm=false; await syncRead(false);}}catch(e){}
+  render();
+}
+async function syncUnlink(){syncHandle=null;syncNeedPerm=false;syncSay("","");await idbDel("handle");render();}
+async function syncInit(){
+  if(!syncOK())return;
+  const h=await idbGet("handle"); if(!h)return;
+  syncHandle=h;
+  try{const p=await h.queryPermission({mode:"readwrite"});
+    if(p==="granted")await syncRead(false); else {syncNeedPerm=true;render();}}
+  catch(e){syncNeedPerm=true;render();}
+}
+function syncCard(){
+  const b="padding:9px 10px;border-radius:4px;font-size:12px;border:1px solid var(--line);background:none;color:var(--ink)";
+  const note=t=>`<div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.45">${t}</div>`;
+  let h=`<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">
+    <div class="eyebrow" style="margin-bottom:6px">Синхронизация через облачную папку</div>`;
+  if(!syncOK())
+    return h+note("Автозапись работает в Chrome или Edge на компьютере. Здесь её нет — пользуйтесь кнопками «Скачать файл» и «Загрузить файл» выше, указывая одну и ту же папку облачного диска.")+`</div>`;
+  if(!syncHandle)
+    return h+`<button id="sy-link" style="${b};width:100%">Связать с файлом</button>`
+      +note("Выберите файл в папке облачного диска (iCloud Drive, OneDrive, Google Drive). После этого каждое изменение будет записываться в него само, а на телефоне вы загрузите тот же файл из «Файлов».")+`</div>`;
+  if(syncNeedPerm)
+    return h+`<button id="sy-grant" style="${b};width:100%;border-color:var(--gold);color:var(--gold)">Подтвердить доступ к файлу</button>`
+      +note("Браузер просит подтверждать доступ к файлу после перезапуска — это делается одним нажатием.")+`</div>`;
+  const c=syncMsgKind==="err"?"var(--cop)":syncMsgKind==="conflict"?"var(--gold)":"var(--mal)";
+  h+=`<div style="font-size:12px;margin-bottom:8px">Файл <b class="mono">${esc(syncHandle.name||"uchet-sync.json")}</b>
+    ${syncMsg?`<span style="color:${c}"> · ${esc(syncMsg)}</span>`:""}</div>`;
+  if(syncMsgKind==="conflict")
+    h+=`<div style="display:flex;gap:8px;margin-bottom:8px">
+      <button id="sy-take" style="${b};flex:1;border-color:var(--mal);color:var(--mal)">Взять из файла</button>
+      <button id="sy-force" style="${b};flex:1;border-color:var(--cop);color:var(--cop)">Перезаписать файл</button></div>`;
+  else
+    h+=`<div style="display:flex;gap:8px;margin-bottom:8px">
+      <button id="sy-pull" style="${b};flex:1">Забрать из файла</button>
+      <button id="sy-off" style="${b};flex:1;color:var(--muted)">Отвязать</button></div>`;
+  return h+note("Запись идёт автоматически при каждом изменении. Если правите и на телефоне — сначала «Забрать из файла», иначе изменения разойдутся.")+`</div>`;
+}
 function bind(){
   bindCollapse();
+  const sl=document.getElementById("sy-link"); if(sl)sl.onclick=syncLink;
+  const sg=document.getElementById("sy-grant"); if(sg)sg.onclick=syncGrant;
+  const sp=document.getElementById("sy-pull"); if(sp)sp.onclick=()=>syncRead(false);
+  const st2=document.getElementById("sy-take"); if(st2)st2.onclick=()=>syncRead(true);
+  const sf=document.getElementById("sy-force"); if(sf)sf.onclick=()=>{syncSay("","");syncWrite(true).then(render)};
+  const so=document.getElementById("sy-off"); if(so)so.onclick=syncUnlink;
+
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{V.tab=b.dataset.tab;render()});
   document.querySelectorAll("button[data-m]").forEach(b=>b.onclick=()=>{V.month=b.dataset.m;render()});
   document.querySelectorAll("tr[data-m]").forEach(b=>b.onclick=()=>{V.month=b.dataset.m;render()});
@@ -1184,9 +1321,8 @@ function bind(){
     const pd=S.debts[prev]; if(pd&&!S.debts[V.date])S.debts[V.date]=Object.assign({},pd);
     save();render();};
   const ex=document.getElementById("exp");
-  if(ex)ex.onclick=()=>{const w=document.getElementById("expwrap");
-    const open=w.style.display==="none";w.style.display=open?"block":"none";
-    if(open)document.getElementById("expbox").value=JSON.stringify(Object.assign({},S,{patch:PATCH_V,names:nameMap()}));
+  if(ex)ex.onclick=()=>{V.expOpen=!V.expOpen;render();
+    if(V.expOpen)document.getElementById("expbox").value=JSON.stringify(Object.assign({},S,{patch:PATCH_V,names:nameMap()}));
     ex.textContent=open?"Скрыть":"Выгрузить / загрузить данные"};
   const pr=document.getElementById("prn");
   if(pr)pr.onclick=()=>window.print();
@@ -1270,7 +1406,7 @@ function updCap(){const e=document.getElementById("c-tot");if(e)e.textContent=fm
   GROUPS.forEach((g,i)=>{const el=document.getElementById("g-"+i);if(!el)return;
     el.textContent=fmt(ACCOUNTS.filter(a=>a[3]===g).reduce((s,a)=>s+num((S.capital[V.date]||{})[a[0]]),0))})}
 
-load().then(render);
+load().then(()=>{render();syncInit();});
 </script>
 
 <script>

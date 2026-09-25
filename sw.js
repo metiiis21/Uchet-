@@ -1,6 +1,6 @@
 /* Кэш приложения. Меняйте VERSION при каждом обновлении index.html —
    иначе айфон продолжит показывать старую копию. */
-const VERSION = "uchet-2026-v6";
+const VERSION = "uchet-2026-v8";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
                 "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
